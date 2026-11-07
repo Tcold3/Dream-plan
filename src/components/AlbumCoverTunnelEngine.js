@@ -293,6 +293,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   const mesh = new THREE.InstancedMesh(geo, mat, N);
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   mesh.frustumCulled = false;
+  const clickRaycaster = new THREE.Raycaster(), instanceCovers = [];
   const world = new THREE.Group();
   world.rotation.z = 0;
   world.add(mesh);
@@ -328,10 +329,13 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   }, settings);
   const pointer = new THREE.Vector2(), look = new THREE.Vector2();
   let inside = false, dragging = false, lastY = 0, moved = 0, dragV = 0, wheel = 0;
-  onCanvas("pointermove", (e) => {
+  const updatePointer = (e) => {
     const r = el.getBoundingClientRect();
-    inside = true;
+    inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
     pointer.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  };
+  onCanvas("pointermove", (e) => {
+    updatePointer(e);
     if (dragging) {
       dragV += e.clientY - lastY;
       moved += Math.abs(e.clientY - lastY);
@@ -339,13 +343,15 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     }
   });
   onCanvas("pointerdown", (e) => {
+    updatePointer(e);
     dragging = true;
     lastY = e.clientY;
     moved = 0;
     el.focus({ preventScroll: true });
     el.setPointerCapture(e.pointerId);
   });
-  onCanvas("pointerup", () => {
+  onCanvas("pointerup", (e) => {
+    updatePointer(e);
     dragging = false;
     if (moved < 6) {
       pick();
@@ -386,20 +392,28 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       c.fl = null;
       return;
     }
-    c.fl = { x0: c.x, y0: c.y, x1, y1, p: 0, dur: 1.15, side: side * (Math.random() < 0.5 ? 1 : -1) };
+    c.fl = { x0: c.x, y0: c.y, x1, y1, p: 0, dur: 1.15, side: side === 0 ? 0 : side * (Math.random() < 0.5 ? 1 : -1) };
     c.hx = x1;
     c.hy = y1;
   }
   const ease = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   function onClick() {
-    if (hovered) select(hovered);
+    if (!inside) return;
+    clickRaycaster.setFromCamera(pointer, camera);
+    const part = geo.getAttribute("aPart");
+    const hit = clickRaycaster.intersectObject(mesh, false).find((intersection) => {
+      const cover = instanceCovers[intersection.instanceId];
+      return cover && cover.o >= 0.5 && cover.fog <= 0.6 && intersection.face?.normal.z > 0.5 && part.getX(intersection.face.a) > 0.5;
+    });
+    if (hit) select(instanceCovers[hit.instanceId]);
   }
+  let lastClickSelection = null;
   function select(t, notify = true) {
     const L = t.L, occ = centerOf(L);
     if (occ && occ !== t) {
       fly(occ, t.hx, t.hy, -1);
     }
-    fly(t, 0, 0, 1);
+    fly(t, 0, 0, 0);
     goTo = travel + (camera.position.z - FOCUS - L.z);
     vel = 0;
     idle = 0;
@@ -410,7 +424,10 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       heroC = t;
       heroAmt = 1;
     }
-    if (notify) options.onSelect?.(t.tex);
+    if (notify) {
+      lastClickSelection = { index: t.tex, src: imageList[t.tex]?.src };
+      options.onSelect?.(t.tex, imageList[t.tex]?.src);
+    }
     wake();
   }
   function pick() {
@@ -589,9 +606,9 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
         const amp = Math.min(3.2, len * 0.32) * F.side;
         c.x = F.x0 + dx * e + -dy / len * bump * amp;
         c.y = F.y0 + dy * e + dx / len * bump * amp;
-        arcZ = bump * (F.side > 0 ? 2.6 : 1.2);
+        arcZ = bump * (F.side === 0 ? 1.8 : F.side > 0 ? 2.6 : 1.2);
         rz = bump * 0.22 * F.side;
-        ryF = bump * 0.35 * Math.sign(dx || 1);
+        ryF = F.side === 0 ? 0 : bump * 0.35 * Math.sign(dx || 1);
         if (F.p >= 1) c.fl = null;
       } else {
         c.x = damp(c.x, c.hx + px, 4, dt);
@@ -621,6 +638,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       SC.setScalar(s2);
       M.compose(P, Q, SC);
       mesh.setMatrixAt(n, M);
+      instanceCovers[n] = c;
       aLook.setXYZW(n, c.b, c.o, blur, Math.max(isHero, c.lift));
       aTex.setX(n, c.tex);
       aPh.setX(n, c.ph * 0.159);
@@ -827,12 +845,14 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   return { ...s.controller, ready, upgradeCovers, update(next = {}) {
     if (dead) return;
     const activeChanged = next.active !== void 0 && next.active !== options.active, imagesChanged = Object.hasOwn(next, "images") && next.images !== options.images;
+    const clickedSelection = activeChanged && lastClickSelection?.index === next.active && lastClickSelection.src === imageList[next.active]?.src;
+    if (activeChanged || imagesChanged) lastClickSelection = null;
     options = { ...options, ...next };
     s.controller.update(next);
     sceneEl.dataset.theme = options.theme;
     resize();
     if (imagesChanged) void loadImages(normalizeImages(next.images));
-    else if (activeChanged && loaded) applyActive(next.active);
+    else if (activeChanged && loaded && !clickedSelection) applyActive(next.active);
     stop();
     wake();
   } };

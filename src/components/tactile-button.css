@@ -197,13 +197,13 @@
   --button-font-size: clamp(18px, 2.25vw, 32px);
   --button-padding-x: 1.7em;
   --button-padding-y: 0.95em;
-  --button-surface-start: #b7f5e5;
-  --button-surface-end: #9bc3ff;
-  --button-text-start: #153b62;
-  --button-text-end: #363c83;
-  background-color: #6483bf;
-  box-shadow: -0.15em -0.15em 0.15em -0.075em rgba(91, 163, 229, .28),
-    0.04em 0.05em 0.08em 0 rgba(33, 68, 128, .2);
+  --button-surface-start: #f8f8f6;
+  --button-surface-end: #e8e9e8;
+  --button-text-start: #242b30;
+  --button-text-end: #455057;
+  background-color: #aeb5ba;
+  box-shadow: -0.1em -0.1em 0.15em -0.075em rgba(50, 62, 69, .14),
+    0.04em 0.05em 0.08em 0 rgba(35, 42, 48, .12);
 }
-.welcome-trigger .button-inner span { font-family: 'Noto Sans SC', sans-serif; font-weight: 600; letter-spacing: 0.08em; }
-.welcome-trigger:focus-visible { outline-color: #4978cc; }
+.welcome-trigger .button-inner span { font-family: 'Noto Serif SC', 'Songti SC', serif; font-weight: 600; letter-spacing: 0.11em; }
+.welcome-trigger:focus-visible { outline-color: #58656c; }

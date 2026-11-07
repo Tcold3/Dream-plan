@@ -8,6 +8,7 @@ type Anime = { id: string; era: string; title: string; year: number; cover: stri
 type Era = 'all' | '80' | '90' | '00' | '10';
 
 const animeCatalog = (catalog as Anime[]).filter(anime => anime.tracks.length > 0);
+const animeByCover = new Map(animeCatalog.map(anime => [anime.cover, anime]));
 const AlbumCoverTunnel = lazy(() => import('./components/AlbumCoverTunnel').then(module => ({ default: module.AlbumCoverTunnel })));
 const eras: { id: Era; label: string }[] = [
   { id: 'all', label: '全部年代' },
@@ -93,9 +94,9 @@ function App() {
     audio.current.play().then(() => setPlaying(true)).catch(() => { setPlaying(false); setAudioError(true); });
   }, []);
 
-  const onSelect = useCallback((index: number) => {
-    const anime = batch[index];
-    if (anime) playAnime(anime, index);
+  const onSelect = useCallback((index: number, src?: string) => {
+    const anime = (src && animeByCover.get(src)) || batch[index];
+    if (anime) playAnime(anime, batch.findIndex(item => item.id === anime.id));
   }, [batch, playAnime]);
 
   const switchEra = (next: Era) => {
@@ -179,9 +180,9 @@ function App() {
         setLoadProgress(100);
         window.setTimeout(() => {
           if (generation !== loadGeneration.current) return;
-          setLoading(false);
-          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setPhase('ready'); return; }
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setLoading(false); setPhase('ready'); return; }
           setPhase('travel');
+          window.setTimeout(() => { if (generation === loadGeneration.current) setLoading(false); }, 420);
           window.setTimeout(() => { if (generation === loadGeneration.current) setPhase('ready'); }, 1750);
         }, 300);
       },
@@ -197,7 +198,7 @@ function App() {
       <TactileWelcomeButton onClick={() => setEntered(true)} />
     </main> : <main className={`experience${phase !== 'ready' ? ' entering' : ''}`} aria-label="动漫主题曲隧道">
       <header className="site-header">
-        <button className="brand" type="button" onClick={leave} aria-label="返回欢迎页"><span className="brand-mark"><i/><i/><i/></span><span>梦开始的地方<span className="brand-en">ANIME THEME RADIO</span></span></button>
+        <button className="brand" type="button" onClick={leave} aria-label="返回欢迎页"><span className="brand-title">梦开始的地方</span><span className="brand-en">ANIME THEME RADIO</span></button>
         <div className="header-right"><span className="on-air"><span/> 80、90 后的动漫记忆</span></div>
       </header>
       <div className="toolbar">
@@ -206,7 +207,8 @@ function App() {
       </div>
       <section className="tunnel-wrap" aria-label="探索动漫封面" aria-busy={loading || batchLoading} ref={tunnelHost}>
         {batch.length > 0 && <Suspense fallback={null}><AlbumCoverTunnel options={tunnelOptions} className="tunnel" /></Suspense>}
-        {(loading || loadError) && <div className="tunnel-loading" role="status" aria-live="polite">
+        {(loading || loadError) && <div className={`tunnel-loading${phase === 'travel' ? ' exiting' : ''}`} role="status" aria-live="polite">
+          <div className="loading-tunnel" aria-hidden="true">{Array.from({ length: 7 }, (_, i) => <i key={i}/>)}</div>
           {loadError ? <div className="loading-error"><LoadingMonogram progress={0}/><p>{loadError}</p><button type="button" onClick={changeBatch}>换一批重试</button></div> : <LoadingMonogram progress={loadProgress}/>}
         </div>}
         <div className="tunnel-topline"><span>轻触动漫封面，重听那段旋律</span><span>{era === 'all' ? '跨越年代' : `${Number(era) >= 70 ? '19' : '20'}${era}S`}</span></div>
