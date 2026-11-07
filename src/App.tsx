@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlbumCoverTunnel } from './components/AlbumCoverTunnel';
 import type { AlbumCoverTunnelOptions } from './components/AlbumCoverTunnelEngine';
+import { TactileWelcomeButton } from './components/TactileWelcomeButton';
 import catalog from './data/albums.json';
 
 type Track = { title: string; preview: string; url: string };
@@ -44,20 +45,26 @@ function ShuffleIcon() {
 }
 
 function App() {
+  const [entered, setEntered] = useState(false);
   const [era, setEra] = useState<Era>('all');
   const [batch, setBatch] = useState<Album[]>(() => makeBatch('all'));
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [current, setCurrent] = useState<{ album: Album; track: Track } | null>(null);
   const [playing, setPlaying] = useState(false);
   const [audioError, setAudioError] = useState(false);
-  const [height, setHeight] = useState(() => typeof window === 'undefined' ? 610 : Math.max(400, Math.min(690, Math.round(window.innerHeight * .67))));
+  const [height, setHeight] = useState(560);
   const audio = useRef<HTMLAudioElement>(null);
+  const tunnelHost = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const onResize = () => setHeight(Math.max(400, Math.min(690, Math.round(window.innerHeight * .67))));
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
+    if (!entered || !tunnelHost.current) return;
+    const host = tunnelHost.current;
+    const updateHeight = () => setHeight(Math.max(340, Math.round(host.clientHeight)));
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(host);
+    updateHeight();
+    return () => observer.disconnect();
+  }, [entered]);
 
   const playAlbum = useCallback((album: Album, index: number) => {
     const track = album.tracks[Math.floor(Math.random() * album.tracks.length)];
@@ -105,44 +112,44 @@ function App() {
     else audio.current.play().then(() => setPlaying(true)).catch(() => setAudioError(true));
   };
 
+  const leave = () => {
+    audio.current?.pause();
+    setPlaying(false);
+    setEntered(false);
+  };
+
   const tunnelOptions = useMemo<AlbumCoverTunnelOptions>(() => ({
     images: batch.map(album => ({ src: album.cover, alt: `${album.title} — ${album.artist}` })),
     active: selectedIndex ?? undefined,
     onSelect,
     height,
-    theme: 'dark',
+    theme: 'light',
     autoTravel: true,
   }), [batch, selectedIndex, onSelect, height]);
 
   return <div className="page-shell">
-    <header className="site-header">
-      <a className="brand" href="#top" aria-label="时光声廊首页"><span className="brand-mark"><i/><i/><i/></span><span>时光声廊<span className="brand-en">TIME TUNNEL RADIO</span></span></a>
-      <div className="header-right"><span className="on-air"><span/> 正在漫游</span><a href="#about" className="header-about">关于这个电台 <span>↗</span></a></div>
-    </header>
-
-    <main id="top">
-      <section className="intro" aria-labelledby="page-title">
-        <div className="intro-main"><p className="serial">CHINESE MUSIC / 1980S — 2020S</p><h1 id="page-title">把耳朵交给<br/><em>另一个年代。</em></h1></div>
-        <div className="intro-side"><span className="starburst">✳</span><p>从一张华语唱片出发，<br/>偶遇一首刚好属于此刻的歌。</p><span className="intro-note">向下滑动隧道，或点一张封面开始听。</span></div>
+    {!entered ? <main className="welcome-screen" aria-label="欢迎来到音乐纪元">
+      <TactileWelcomeButton onClick={() => setEntered(true)} />
+    </main> : <main className="experience" aria-label="音乐纪元专辑隧道">
+      <header className="site-header">
+        <button className="brand" type="button" onClick={leave} aria-label="返回欢迎页"><span className="brand-mark"><i/><i/><i/></span><span>音乐纪元<span className="brand-en">MUSIC TIME MACHINE</span></span></button>
+        <div className="header-right"><span className="on-air"><span/> 华语音乐 · 1980s—2020s</span></div>
+      </header>
+      <div className="toolbar">
+        <div className="era-switch" role="group" aria-label="选择年代">{eras.map(item => <button key={item.id} className={era === item.id ? 'era active' : 'era'} type="button" onClick={() => switchEra(item.id)} aria-pressed={era === item.id}>{item.label}</button>)}</div>
+        <div className="toolbar-actions"><button className="refresh" type="button" onClick={changeBatch}><span>↻</span> 换一批</button><button className="random-button" onClick={randomPlay} type="button"><ShuffleIcon/> 随机听一首</button></div>
+      </div>
+      <section className="tunnel-wrap" aria-label="探索专辑" ref={tunnelHost}>
+        {batch.length > 0 && <AlbumCoverTunnel options={tunnelOptions} className="tunnel" />}
+        <div className="tunnel-topline"><span>轻触封面，开始听歌</span><span>{era === 'all' ? '跨越年代' : `${Number(era) >= 70 ? '19' : '20'}${era}S`}</span></div>
+        <div className="tunnel-bottomline"><span>滚动 / 拖动穿梭 <b>↓</b></span><span>当前 {batch.length} 张封面</span></div>
       </section>
-
-      <section className="explore" aria-label="探索专辑">
-        <div className="toolbar"><div className="era-switch" role="group" aria-label="选择年代">{eras.map(item => <button key={item.id} className={era === item.id ? 'era active' : 'era'} type="button" onClick={() => switchEra(item.id)} aria-pressed={era === item.id}>{item.label}</button>)}</div><button className="refresh" type="button" onClick={changeBatch}><span>↻</span> 换一批</button></div>
-        <div className="tunnel-wrap">
-          {batch.length > 0 && <AlbumCoverTunnel options={tunnelOptions} className="tunnel" />}
-          <div className="tunnel-topline"><span>EXPLORE THE SOUND</span><span>{era === 'all' ? '跨越年代' : `${Number(era) >= 70 ? '19' : '20'}${era}S`}</span></div>
-          <div className="tunnel-bottomline"><span>SCROLL TO TRAVEL <b>↓</b></span><span>当前 {batch.length} 张封面</span></div>
-        </div>
-        <div className="explore-footer"><p>每一次穿越，都有新的声音等你发现。</p><button className="random-button" onClick={randomPlay} type="button"><ShuffleIcon/> 随机听一首 <span>↗</span></button></div>
-      </section>
-
       <section className="now-playing" aria-label="正在播放">
         <div className="now-label"><span className="pulse-bars"><i/><i/><i/><i/></span><span>NOW PLAYING<br/><strong>此刻的声音</strong></span></div>
         {current ? <><img src={current.album.cover} alt={`${current.album.title} 专辑封面`} className="mini-cover"/><div className="track-info"><p>{current.album.year} · {current.album.title}</p><h2>{current.track.title}</h2><span>{current.album.artist}</span>{audioError && <small>试听暂时无法播放，请前往音乐平台收听。</small>}</div><div className="player-actions"><button className="player-control" onClick={togglePlay} type="button" aria-label={playing ? '暂停' : '播放'}><PlayIcon playing={playing}/></button><button className="next-control" onClick={randomPlay} type="button" aria-label="下一首随机歌曲">→</button><a href={current.track.url || current.album.url} target="_blank" rel="noreferrer" className="platform-link">在 Apple Music 中打开 ↗</a></div></> : <><div className="empty-vinyl"><div/></div><p className="empty-copy">还没有选中歌曲。<br/><span>点一张封面，或让命运随机挑选。</span></p><button className="empty-action" type="button" onClick={randomPlay}>开始听 <span>↗</span></button></>}
       </section>
-    </main>
-
-    <footer id="about"><span>时光声廊 © 2026</span><p>精选 80 年代至 2020 年代华语专辑（内地、香港、台湾）· Apple Music 提供 30 秒试听片段。封面与音乐版权归各权利人所有。</p><a href="#top">回到顶部 ↑</a></footer>
+      <footer className="legal-line">精选 80 年代至 2020 年代华语专辑 · Apple Music 提供 30 秒试听 · 封面与音乐版权归各权利人所有</footer>
+    </main>}
     <audio ref={audio} onEnded={() => setPlaying(false)} onError={() => { setPlaying(false); setAudioError(true); }}/>
   </div>;
 }

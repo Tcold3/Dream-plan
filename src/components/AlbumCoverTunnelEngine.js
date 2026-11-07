@@ -2,7 +2,6 @@
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
@@ -36,7 +35,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   renderer.setPixelRatio(PR);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 0.94;
   stage.appendChild(renderer.domElement);
   const el = renderer.domElement;
   el.tabIndex = 0;
@@ -47,16 +46,12 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   const camera = new THREE.PerspectiveCamera(32, 16 / 9, 0.5, 200);
   scene.add(camera);
   const BGF = `vec3 bgCol(vec2 p, float tt){
-      vec3 c=mix(vec3(.02,.03,.10),vec3(.10,.09,.34),smoothstep(.85,.3,p.y+(p.x-.5)*.25));
-      c=mix(c,vec3(.30,.22,.62),smoothstep(.55,.15,p.y)*.3);
-      c+=vec3(1.,.86,1.)*exp(-pow(length((p-vec2(.56,.2))*vec2(1.3,2.)),2.)*6.)*(.38+.03*sin(tt*.7));
-      vec2 q=(p-.5)/.382+.5;                                   // \u5C4F\u5E55\u5750\u6807\uFF08\u80CC\u666F\u677F\u53EA\u9732\u51FA\u4E2D\u95F4 38%\uFF09
-      vec2 cq=(q-vec2(.54,.5))*vec2(1.78,1.);
-      float r2=dot(cq,cq);
-      c*=1.-.72*smoothstep(.05,.75,sqrt(r2));                    // \u56DB\u5468\u6C89\u8FDB\u6DF1\u8272
-      c+=vec3(.52,.42,.95)*exp(-r2*5.)*.42;                      // \u96A7\u9053\u6DF1\u5904\u7684\u5927\u5149\u6655
-      c+=vec3(.95,.86,1.)*exp(-r2*26.)*(.42+.05*sin(tt*.5));     // \u5149\u6E90\u672C\u8EAB
-      return c; }`;
+      vec2 q=(p-.5)/.382+.5;
+      vec2 cq=(q-vec2(.52,.5))*vec2(1.65,1.);
+      float r=length(cq);
+      vec3 paper=vec3(1.55,1.56,1.57);
+      paper-=vec3(.11,.11,.11)*smoothstep(.18,.95,r);
+      return paper; }`;
   const bg = new THREE.Mesh(new THREE.PlaneGeometry(160, 90), new THREE.ShaderMaterial({
     depthWrite: false,
     uniforms: { uTime: { value: 0 } },
@@ -88,11 +83,11 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     var dust = new THREE.Points(geo2, new THREE.PointsMaterial({
       map: new THREE.CanvasTexture(c),
       size: 0.09,
-      color: 16050431,
+      color: 8947848,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.12,
       depthWrite: false,
-      blending: THREE.AdditiveBlending
+      blending: THREE.NormalBlending
     }));
     camera.add(dust);
   }
@@ -185,7 +180,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   geo.setAttribute("aFog", aFog);
   const mat = new THREE.ShaderMaterial({
     transparent: true,
-    uniforms: { map: { value: null }, uRim: { value: new THREE.Color(11840752) }, uTime: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) } },
+    uniforms: { map: { value: null }, uRim: { value: new THREE.Color(11908533) }, uTime: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) } },
     vertexShader: `
     attribute float aTex, aPart, aPh, aFog; attribute vec4 aLook;
     varying vec2 vUv; varying float vTex, vPart, vPh; varying vec4 vLook; varying vec3 vN, vVN, vVP; varying float vFog;
@@ -209,9 +204,9 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
         vec2 q = abs(vUv - .5) - .5 / 1.6 * .92;
         float d = length(max(q, 0.)) + min(max(q.x, q.y), 0.);
         if (vLook.y < .99) discard;                                     // \u6B63\u5728\u7A7F\u8FC7\u7684\u90A3\u5C42\u4E0D\u753B\u5F71\u5B50
-        float a = (1. - smoothstep(-.02, .16, d)) * .55 * (1. - vFog);
+        float a = (1. - smoothstep(-.02, .16, d)) * .18 * (1. - vFog);
         if (a < .004) discard;                                          // \u6295\u5F71\u5916\u5708\u4E0D\u5199\u6DF1\u5EA6\uFF0C\u4E0D\u4F1A\u6321\u4F4F\u540E\u9762
-        gl_FragColor = vec4(vec3(.01, .0, .03), a); return;
+        gl_FragColor = vec4(vec3(.18, .19, .20), a); return;
       }
       if (vLook.y < .99 && abs(vN.z) < .5) discard;                    // \u534A\u900F\u660E\u65F6\u53EA\u7559\u6B63\u9762\uFF0C\u4E0D\u900F\u51FA\u76D2\u5B50\u5185\u58C1
       if (vLook.y < .99 && vN.z < -.5) discard;
@@ -225,31 +220,28 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
         vec2 e2 = min(vUv, 1. - vUv); float e = min(e2.x, e2.y);
         float lip = 1. - smoothstep(.0, .014, e);                       // \u5916\u6CBF\u5012\u89D2
         float tl = clamp(.5 + (vUv.y - vUv.x) * .9, 0., 1.);           // \u5DE6\u4E0A\u4EAE\u3001\u53F3\u4E0B\u6697
-        c = mix(c, c * .55 + vec3(.55, .52, .70) * tl * .6, lip * .8);
+        c = mix(c, c * .55 + vec3(.59) * tl * .6, lip * .8);
         c *= 1. - .35 * smoothstep(.022, .014, e) * smoothstep(.010, .016, e);   // \u5012\u89D2\u91CC\u4FA7\u4E00\u6761\u7EC6\u9634\u5F71
         c *= .9 + .1 * smoothstep(.0, .35, e);                           // \u5370\u5237\u9762\u8FB9\u7F18\u5FAE\u6697
         c += (h21(floor(vUv * 700.)) - .5) * .018;                      // \u7EB8\u5F20\u9897\u7C92
-        float sweep = fract(uTime * .07 + vPh) * 2.6 - .8;              // \u659C\u5411\u626B\u8FC7\u7684\u8986\u819C\u9AD8\u5149
-        float band = exp(-pow((vUv.x * .7 + (1. - vUv.y) * .3) - sweep, 2.) * 90.);
-        c += vec3(1., .95, 1.) * band * (.06 + .22 * vLook.w);
-        c += uRim * fres * .25;
+        c += uRim * fres * .045;
       } else if (vN.z < -.5) {
-        c = vec3(.025, .022, .045);                                      // \u80CC\u677F
+        c = vec3(.26, .27, .28);                                      // \u80CC\u677F
       } else {
         // ---- \u539A\u5EA6\uFF1A\u900F\u660E\u58F3\u8FB9 / \u5370\u5237\u5305\u8FB9 / \u7EB8\u82AF\u7EC6\u7EB9 / \u80CC\u677F ----
         float f = vN.x > .5 ? 1. - vUv.x : vN.x < -.5 ? vUv.x : vN.y > .5 ? 1. - vUv.y : vUv.y;   // 1 = \u6B63\u9762\u4E00\u4FA7
         float along = abs(vN.x) > .5 ? vUv.y : vUv.x;
         vec2 edgeUv = vN.x > .5 ? vec2(.985, along) : vN.x < -.5 ? vec2(.015, along) : vN.y > .5 ? vec2(along, .985) : vec2(along, .015);
         vec3 ink = cover(edgeUv, 2.);
-        vec3 paper = vec3(.80, .77, .88) * (.86 + .14 * sin(f * 190.)) * (.94 + .06 * h21(vec2(floor(f * 60.), floor(along * 400.))));
-        vec3 back = vec3(.06, .055, .10);
+        vec3 paper = vec3(.82, .82, .81) * (.91 + .09 * sin(f * 190.)) * (.96 + .04 * h21(vec2(floor(f * 60.), floor(along * 400.))));
+        vec3 back = vec3(.26, .27, .28);
         c = back;
         c = mix(c, paper, smoothstep(.13, .16, f));
         c = mix(c, ink * .85, smoothstep(.74, .77, f));
-        c = mix(c, ink * .5 + vec3(.55, .55, .7) * .45, smoothstep(.90, .92, f));   // \u900F\u660E\u58F3
-        c += vec3(.9, .85, 1.) * .35 * (smoothstep(.975, 1., f) + (1. - smoothstep(.0, .03, f)) * .4);  // \u4E24\u6761\u4EAE\u68F1
+        c = mix(c, ink * .5 + vec3(.58) * .45, smoothstep(.90, .92, f));   // \u900F\u660E\u58F3
+        c += vec3(.9) * .07 * (smoothstep(.975, 1., f) + (1. - smoothstep(.0, .03, f)) * .4);  // \u4E24\u6761\u4EAE\u68F1
         c *= .55 + .55 * max(dot(vN, L), 0.);                            // \u671D\u5149\u7684\u4FA7\u9762\u66F4\u4EAE
-        c += uRim * fres * .45;
+        c += uRim * fres * .06;
       }
       c *= vLook.x;
       vec2 sp = .5 + (gl_FragCoord.xy / uRes - .5) * .382;            // \u8FDC\u5904\u878D\u8FDB\u540C\u4E00\u5F20\u80CC\u666F\u8272\u91CC\uFF08\u771F\u96FE\uFF0C\u4E0D\u662F\u534A\u900F\u660E\uFF09
@@ -266,23 +258,14 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   scene.add(world);
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(960, 540), 0.5, 0.35, 0.9);
-  const bloomSet = bloom.setSize.bind(bloom);
-  bloom.setSize = (w, h) => bloomSet(w / 2, h / 2);
-  composer.addPass(bloom);
   const grade = new ShaderPass({
     uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uLight: { value: new THREE.Vector2(0.53, 0.47) } },
     vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
     fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime; uniform vec2 uLight; varying vec2 vUv;
-    float h(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
-    void main(){ vec2 uv=vUv, d=uv-.5; vec3 c;
-      c.r=texture2D(tDiffuse,uv+d*.003).r; c.g=texture2D(tDiffuse,uv).g; c.b=texture2D(tDiffuse,uv-d*.003).b;
-      // \u4F53\u79EF\u5149\uFF1A\u4ECE\u96A7\u9053\u5C3D\u5934\u7684\u5149\u6E90\u5F80\u5916\u653E\u5C04\uFF0C\u88AB\u5C01\u9762\u6321\u4F4F\u7684\u5730\u65B9\u5F62\u6210\u5149\u675F\u7F1D\u9699
-      vec2 st=(uLight-uv)/18.; vec2 q=uv+st*h(gl_FragCoord.xy); float w=1., ray=0.;
-      for(int i=0;i<18;i++){ vec3 s=texture2D(tDiffuse,q).rgb; ray+=max(dot(s,vec3(.3,.5,.2))-.62,0.)*w; w*=.9; q+=st; }
-      c+=vec3(.70,.62,1.)*ray*.13*smoothstep(.2,.42,length((uv-uLight)*vec2(1.6,1.)));   // \u4E3B\u5C01\u9762\u533A\u57DF\u4E0D\u53E0\u5149\u675F\uFF0C\u4FDD\u6301\u5E72\u51C0
-      c*=1.-dot(d*vec2(1.,1.25),d*vec2(1.,1.25))*1.35; c+=(h(gl_FragCoord.xy+fract(uTime)*100.)-.5)*.022;
-      gl_FragColor=vec4(c,1.); }`
+    void main(){
+      vec3 c=texture2D(tDiffuse,vUv).rgb;
+      gl_FragColor=vec4(c,1.);
+    }`
   });
   composer.addPass(grade);
   composer.addPass(new OutputPass());
@@ -773,7 +756,7 @@ THE SOFTWARE.
 
 */
 function mountAlbumCoverTunnel(target, options = {}) {
-  return createAlbumCoverTunnel(target, options, '.aw-scene{position:relative;width:100%;height:var(--motion-height,675px);min-height:180px;overflow:hidden;background:#05060f;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}\r\n.aw-scene #stage{position:absolute;inset:0;margin:auto;aspect-ratio:16/9;max-width:100%;max-height:100%;width:min(100%,calc(var(--motion-height,675px)*16/9));touch-action:none;overflow:hidden}\r\n.aw-scene canvas{display:block;width:100%!important;height:100%!important;outline:none}\r\n.aw-scene canvas:focus-visible{outline:2px solid #e2d8ff;outline-offset:-4px}\r\n.aw-scene #hint{position:absolute;bottom:16px;left:24px;right:24px;text-align:center;color:#ffffffa0;font-size:12px;line-height:1.6;letter-spacing:.03em;text-shadow:0 1px 8px #0008;transition:opacity 1.2s;pointer-events:none}\r\n.aw-scene #fps{display:none}\r\n.aw-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}\r\n.aw-error{position:absolute;inset:0;display:grid;place-items:center;color:#dcd8eb;font-size:14px}\r\n.aw-scene[data-theme=light]{background:#f4f4f4}\r\n.aw-scene[data-theme=light] #stage{width:min(94%,calc(var(--motion-height,675px)*.94*16/9));border-radius:20px;box-shadow:0 14px 35px #0002}\r\n.aw-scene[data-theme=light] #hint{display:none}\r\n@media(max-width:600px){.aw-scene #hint{bottom:12px;left:16px;right:16px;font-size:11px}}\r\n@media(prefers-reduced-motion:reduce){.aw-scene #hint{transition:none}}\r\n', '<section class="aw-scene notranslate" translate="no" aria-label="Album cover tunnel"><div id="stage"></div><p id="hint">\u6EDA\u8F6E / \u4E0A\u4E0B\u62D6\u52A8\uFF1A\u7A7F\u8FC7\u5C01\u9762\u96A7\u9053 \xB7 \u60AC\u505C\u5438\u8D77 \xB7 \u70B9\u51FB\u98DE\u5165\u4E2D\u592E \xB7 \u65B9\u5411\u952E\u5207\u6362 \xB7 \u7A7A\u683C\u6682\u505C</p><span id="fps"></span><p class="aw-status" aria-live="polite"></p><p class="aw-error" role="status" hidden></p></section>');
+  return createAlbumCoverTunnel(target, options, '.aw-scene{position:relative;width:100%;height:var(--motion-height,675px);min-height:180px;overflow:hidden;background:#05060f;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}\r\n.aw-scene #stage{position:absolute;inset:0;margin:auto;aspect-ratio:16/9;max-width:100%;max-height:100%;width:min(100%,calc(var(--motion-height,675px)*16/9));touch-action:none;overflow:hidden}\r\n.aw-scene canvas{display:block;width:100%!important;height:100%!important;outline:none}\r\n.aw-scene canvas:focus-visible{outline:2px solid #202327;outline-offset:-4px}\r\n.aw-scene #hint{position:absolute;bottom:16px;left:24px;right:24px;text-align:center;color:#ffffffa0;font-size:12px;line-height:1.6;letter-spacing:.03em;text-shadow:0 1px 8px #0008;transition:opacity 1.2s;pointer-events:none}\r\n.aw-scene #fps{display:none}\r\n.aw-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}\r\n.aw-error{position:absolute;inset:0;display:grid;place-items:center;color:#202327;font-size:14px}\r\n.aw-error[hidden]{display:none}\r\n.aw-scene[data-theme=light]{background:#fff}\r\n.aw-scene[data-theme=light] #stage{width:min(100%,calc(var(--motion-height,675px)*16/9));border-radius:0;box-shadow:none}\r\n.aw-scene[data-theme=light] #hint{display:none}\r\n@media(max-width:600px){.aw-scene #hint{bottom:12px;left:16px;right:16px;font-size:11px}}\r\n@media(prefers-reduced-motion:reduce){.aw-scene #hint{transition:none}}\r\n', '<section class="aw-scene notranslate" translate="no" aria-label="Album cover tunnel"><div id="stage"></div><p id="hint">\u6EDA\u8F6E / \u4E0A\u4E0B\u62D6\u52A8\uFF1A\u7A7F\u8FC7\u5C01\u9762\u96A7\u9053 \xB7 \u60AC\u505C\u5438\u8D77 \xB7 \u70B9\u51FB\u98DE\u5165\u4E2D\u592E \xB7 \u65B9\u5411\u952E\u5207\u6362 \xB7 \u7A7A\u683C\u6682\u505C</p><span id="fps"></span><p class="aw-status" aria-live="polite"></p><p class="aw-error" role="status" hidden></p></section>');
 }
 export {
   mountAlbumCoverTunnel
