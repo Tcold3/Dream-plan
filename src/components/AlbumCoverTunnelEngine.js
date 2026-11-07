@@ -2,7 +2,6 @@
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { createSurface } from "./motion-runtime";
@@ -22,9 +21,10 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   sceneEl.dataset.theme = options.theme;
   let dead = false, loaded = false, raf = 0, visible = true, inView = true;
   const stage = root.querySelector("#stage");
+  const mobile = win.matchMedia("(max-width: 660px), (pointer: coarse)").matches;
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance", preserveDrawingBuffer: true });
+    renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
   } catch {
     sceneEl.dataset.renderer = "unavailable";
     errorEl.hidden = false;
@@ -32,7 +32,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     options.onError?.(errorEl.textContent);
     return s.controller;
   }
-  let PR = Math.min(devicePixelRatio, 1.5);
+  let PR = Math.min(devicePixelRatio, mobile ? 1 : 1.5);
   renderer.setPixelRatio(PR);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -74,7 +74,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     gr.addColorStop(1, "rgba(255,255,255,0)");
     g.fillStyle = gr;
     g.fillRect(0, 0, 32, 32);
-    const n = 1400, pos = new Float32Array(n * 3);
+    const n = mobile ? 600 : 1400, pos = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 60;
       pos[i * 3 + 1] = (Math.random() - 0.5) * 36;
@@ -94,7 +94,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     }));
     camera.add(dust);
   }
-  const particleCount = 220;
+  const particleCount = mobile ? 100 : 220;
   const particleX = new Float32Array(particleCount), particleY = new Float32Array(particleCount), particleZ = new Float32Array(particleCount);
   const streakPositions = new Float32Array(particleCount * 6), sparklePositions = new Float32Array(particleCount * 3);
   const streakGeometry = new THREE.BufferGeometry(), sparkleGeometry = new THREE.BufferGeometry();
@@ -114,7 +114,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   }
   // Posters are portrait artwork. Keep their aspect ratio all the way from
   // the source image to the card face instead of padding a square texture.
-  const TEX_W = 768, TEX_H = 1088;
+  const TEX_W = mobile ? 576 : 768, TEX_H = mobile ? 816 : 1088;
   function createLayerCanvas() {
     const cv = document.createElement("canvas");
     cv.width = TEX_W;
@@ -127,7 +127,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     img.src = src;
     await img.decode();
     if (dead) throw new Error("destroyed");
-    const frame = 16;
+    const frame = Math.round(TEX_W / 48);
     const innerWidth = TEX_W - frame * 2, innerHeight = TEX_H - frame * 2;
     g.fillStyle = "#e5e8eb";
     g.fillRect(0, 0, TEX_W, TEX_H);
@@ -159,13 +159,13 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     t.needsUpdate = true;
     return t;
   }
-  const S = 2.9, POSTER_W = S * TEX_W / TEX_H, G = 4.4, D = 5.5, NL = 14, FOCUS = 14;
+  const S = 2.9, POSTER_W = S * TEX_W / TEX_H, G = 4.4, D = 5.5, NL = mobile ? 10 : 14, FOCUS = 14;
   const covers = [], layers = [];
   const keyAt = (i, j, k) => imageList.length === 1 ? 0 : 1 + ((i * 3 + j * 5 + k * 2) % (imageList.length - 1) + imageList.length - 1) % (imageList.length - 1);
   for (let k = 0; k < NL; k++) {
     const L = { k, z: -k * D, items: [] };
     layers.push(L);
-    for (let j = -5; j <= 5; j++) for (let i = -7; i <= 7; i++) {
+    for (let j = mobile ? -4 : -5; j <= (mobile ? 4 : 5); j++) for (let i = mobile ? -5 : -7; i <= (mobile ? 5 : 7); i++) {
       if (((i + j + k) % 2 + 2) % 2) continue;
       const hh = Math.abs(Math.sin(i * 12.9898 + j * 78.233 + k * 37.719) * 43758.5453) % 1;
       if (Math.max(Math.abs(i), Math.abs(j)) > 1 && hh < 0.42) continue;
@@ -300,16 +300,6 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   scene.add(world);
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const grade = new ShaderPass({
-    uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uLight: { value: new THREE.Vector2(0.53, 0.47) } },
-    vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-    fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime; uniform vec2 uLight; varying vec2 vUv;
-    void main(){
-      vec3 c=texture2D(tDiffuse,vUv).rgb;
-      gl_FragColor=vec4(c,1.);
-    }`
-  });
-  composer.addPass(grade);
   composer.addPass(new OutputPass());
   function resize() {
     const w = Math.max(1, stage.clientWidth), h = Math.max(1, stage.clientHeight);
@@ -337,7 +327,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   onCanvas("pointermove", (e) => {
     updatePointer(e);
     if (dragging) {
-      dragV += e.clientY - lastY;
+      dragV += e.pointerType === "touch" ? lastY - e.clientY : e.clientY - lastY;
       moved += Math.abs(e.clientY - lastY);
       lastY = e.clientY;
     }
@@ -575,9 +565,9 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       heroAmt = 0;
     }
     heroAmt = damp(heroAmt, settled && newHero === heroC ? 1 : 0, settled ? 2.8 : 7, dt);
-    if (!dragging) pick();
+    if (!dragging && !mobile) pick();
     else hovered = null;
-    el.style.cursor = dragging ? "grabbing" : hovered ? "pointer" : "grab";
+    if (!mobile) el.style.cursor = dragging ? "grabbing" : hovered ? "pointer" : "grab";
     const order = covers.slice().sort((a, b) => a.L.z + a.zo - (b.L.z + b.zo));
     let n = 0;
     for (const c of order) {
@@ -652,7 +642,6 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     aFog.needsUpdate = true;
     mat.uniforms.uTime.value = t;
     bg.material.uniforms.uTime.value = t;
-    grade.uniforms.uTime.value = t;
     dust.rotation.z = t * 0.01;
   }
   const fpsEl = document.getElementById("fps");
@@ -682,8 +671,8 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       const fps = frames / acc;
       fpsEl.textContent = fps.toFixed(0) + " fps \xB7 " + PR.toFixed(2) + "x";
       slow = fps < 45 ? slow + 1 : 0;
-      if (slow >= 2 && PR > 0.76 && options.theme !== "light") {
-        PR = Math.max(0.75, PR - 0.25);
+      if (slow >= 2 && PR > (mobile ? 0.7 : 0.75)) {
+        PR = Math.max(mobile ? 0.7 : 0.75, PR - (mobile ? 0.15 : 0.25));
         resize();
         slow = 0;
       }
@@ -696,7 +685,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     if (dead || !visible || doc.hidden || !loaded) return;
     if (now >= paintDue || instant()) {
       render(now);
-      paintDue = Math.max(paintDue + 1e3 / (options.theme === "light" ? 30 : 60), now);
+      paintDue = Math.max(paintDue + 1e3 / (mobile || options.theme !== "light" ? 60 : 30), now);
     }
     if (!instant()) {
       sceneEl.dataset.running = "true";
