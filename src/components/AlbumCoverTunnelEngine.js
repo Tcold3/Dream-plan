@@ -29,9 +29,10 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     sceneEl.dataset.renderer = "unavailable";
     errorEl.hidden = false;
     errorEl.textContent = "\u5F53\u524D\u73AF\u5883\u4E0D\u652F\u6301 WebGL2";
+    options.onError?.(errorEl.textContent);
     return s.controller;
   }
-  let PR = Math.min(devicePixelRatio, options.theme === "light" ? 0.75 : 1.5);
+  const PR = Math.min(devicePixelRatio, 1.5);
   renderer.setPixelRatio(PR);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -91,10 +92,13 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     }));
     camera.add(dust);
   }
-  const TS = 512;
+  // Posters are portrait artwork. Keep their aspect ratio all the way from
+  // the source image to the card face instead of padding a square texture.
+  const TEX_W = 768, TEX_H = 1088;
   function createLayerCanvas() {
     const cv = document.createElement("canvas");
-    cv.width = cv.height = TS;
+    cv.width = TEX_W;
+    cv.height = TEX_H;
     return cv.getContext("2d", { willReadFrequently: true });
   }
   async function writeCoverLayer(g, data, index, src) {
@@ -103,20 +107,23 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     img.src = src;
     await img.decode();
     if (dead) throw new Error("destroyed");
-    g.fillStyle = "#e9e9e9";
-    g.fillRect(0, 0, TS, TS);
-    const scale = Math.min(TS / img.width, TS / img.height);
+    g.fillStyle = "#f3f3f3";
+    g.fillRect(0, 0, TEX_W, TEX_H);
+    const scale = Math.min(TEX_W / img.width, TEX_H / img.height);
     const width = img.width * scale, height = img.height * scale;
-    g.drawImage(img, (TS - width) / 2, (TS - height) / 2, width, height);
-    data.set(g.getImageData(0, 0, TS, TS).data, index * TS * TS * 4);
+    g.imageSmoothingEnabled = true;
+    g.imageSmoothingQuality = "high";
+    g.drawImage(img, (TEX_W - width) / 2, (TEX_H - height) / 2, width, height);
+    data.set(g.getImageData(0, 0, TEX_W, TEX_H).data, index * TEX_W * TEX_H * 4);
   }
-  async function buildArray(images) {
+  async function buildArray(images, report) {
     const g = createLayerCanvas();
-    const data = new Uint8Array(TS * TS * 4 * images.length);
+    const data = new Uint8Array(TEX_W * TEX_H * 4 * images.length);
     for (let i = 0; i < images.length; i++) {
       await writeCoverLayer(g, data, i, images[i].src);
+      report?.(Math.round((i + 1) / images.length * 90));
     }
-    const t = new THREE.DataArrayTexture(data, TS, TS, images.length);
+    const t = new THREE.DataArrayTexture(data, TEX_W, TEX_H, images.length);
     t.minFilter = THREE.LinearMipmapLinearFilter;
     t.magFilter = THREE.LinearFilter;
     t.generateMipmaps = true;
@@ -125,7 +132,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     t.needsUpdate = true;
     return t;
   }
-  const S = 2.9, G = 4.4, D = 5.5, NL = 14, FOCUS = 14;
+  const S = 2.9, POSTER_W = S * TEX_W / TEX_H, G = 4.4, D = 5.5, NL = 14, FOCUS = 14;
   const covers = [], layers = [];
   const keyAt = (i, j, k) => imageList.length === 1 ? 0 : 1 + ((i * 3 + j * 5 + k * 2) % (imageList.length - 1) + imageList.length - 1) % (imageList.length - 1);
   for (let k = 0; k < NL; k++) {
@@ -160,9 +167,9 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   }
   const N = covers.length;
   const TH = S * 0.12;
-  const shadowG = new THREE.PlaneGeometry(S * 1.6, S * 1.6);
+  const shadowG = new THREE.PlaneGeometry(POSTER_W * 1.6, S * 1.6);
   shadowG.translate(0.28, -0.42, -TH * 0.5 - 0.35);
-  const boxG = new THREE.BoxGeometry(S, S, TH, 1, 1, 1);
+  const boxG = new THREE.BoxGeometry(POSTER_W, S, TH, 1, 1, 1);
   const partOf = (g, v) => g.setAttribute("aPart", new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(v), 1));
   partOf(shadowG, 0);
   partOf(boxG, 1);
@@ -256,7 +263,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   mesh.frustumCulled = false;
   const world = new THREE.Group();
-  world.rotation.z = 0.2;
+  world.rotation.z = 0;
   world.add(mesh);
   scene.add(world);
   const composer = new EffectComposer(renderer);
@@ -274,6 +281,8 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   composer.addPass(new OutputPass());
   function resize() {
     const w = Math.max(1, stage.clientWidth), h = Math.max(1, stage.clientHeight);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
     mat.uniforms.uRes.value.set(w * PR, h * PR);
     renderer.setPixelRatio(PR);
     renderer.setSize(w, h, false);
@@ -379,8 +388,9 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       const dist = camera.position.z - tmp.z;
       if (dist < 1) continue;
       tmp.project(camera);
-      const half = S * c.s * 0.5 / (dist * tanHalf);
-      if (Math.abs(tmp.x - pointer.x) * camera.aspect < half && Math.abs(tmp.y - pointer.y) < half && c.z > bestZ) {
+      const halfX = POSTER_W * c.s * 0.5 / (dist * tanHalf);
+      const halfY = S * c.s * 0.5 / (dist * tanHalf);
+      if (Math.abs(tmp.x - pointer.x) * camera.aspect < halfX && Math.abs(tmp.y - pointer.y) < halfY && c.z > bestZ) {
         bestZ = c.z;
         hovered = c;
       }
@@ -512,10 +522,10 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       c.z = L.z + 1.3 * isHero + 2 * c.lift + arcZ + Math.sin(t * 0.6 + c.ph) * 0.06;
       c.zo = c.z - L.z;
       const tgx = (c === hovered ? -look.y * 0.35 : 0) + c.y * 0.012, tgy = (c === hovered ? look.x * 0.35 : 0) - c.x * 0.012;
-      c.rx = damp(c.rx, tgx, 6, dt);
-      c.ry = damp(c.ry, tgy, 6, dt);
+      c.rx = damp(c.rx, tgx * (1 - isHero), 6, dt);
+      c.ry = damp(c.ry, tgy * (1 - isHero), 6, dt);
       const blur = Math.min(4.5, Math.abs(dz) * 0.3) * (1 - Math.max(isHero, c.lift));
-      E.set(c.rx, c.ry + ryF, Math.sin(t * 0.3 + c.ph) * 0.012 + rz);
+      E.set(c.rx, c.ry + ryF, Math.sin(t * 0.3 + c.ph) * 0.012 * (1 - isHero) + rz);
       Q.setFromEuler(E);
       P.set(c.x, c.y, c.z);
       SC.setScalar(s2);
@@ -637,7 +647,12 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   }
   function loadImages(images) {
     const version = ++loadVersion;
-    return buildArray(images).then((texture) => {
+    const onProgress = options.onProgress, onReady = options.onReady, onError = options.onError;
+    onProgress?.(0);
+    return buildArray(images, (progress) => {
+      if (dead || version !== loadVersion) throw new Error("cancelled");
+      onProgress?.(progress);
+    }).then((texture) => {
       if (dead || version !== loadVersion) {
         texture.dispose();
         return;
@@ -660,6 +675,8 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       sceneEl.dataset.ready = "true";
       s.body.dataset.motionReady = "true";
       s.ready();
+      onProgress?.(100);
+      onReady?.();
       if (options.active !== void 0) applyActive(options.active);
       wake();
     }).catch(() => {
@@ -667,6 +684,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
         sceneEl.dataset.error = "images";
         errorEl.hidden = false;
         errorEl.textContent = "\u5C01\u9762\u56FE\u7247\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u56FE\u7247\u5730\u5740";
+        onError?.(errorEl.textContent);
       }
     });
   }
@@ -722,7 +740,6 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     options = { ...options, ...next };
     s.controller.update(next);
     sceneEl.dataset.theme = options.theme;
-    if (options.theme === "light") PR = Math.min(PR, 0.75);
     resize();
     if (imagesChanged) void loadImages(normalizeImages(next.images));
     else if (activeChanged && loaded) applyActive(next.active);
@@ -759,7 +776,7 @@ THE SOFTWARE.
 
 */
 function mountAlbumCoverTunnel(target, options = {}) {
-  return createAlbumCoverTunnel(target, options, '.aw-scene{position:relative;width:100%;height:var(--motion-height,675px);min-height:180px;overflow:hidden;background:#05060f;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}\r\n.aw-scene #stage{position:absolute;inset:0;margin:auto;aspect-ratio:16/9;max-width:100%;max-height:100%;width:min(100%,calc(var(--motion-height,675px)*16/9));touch-action:none;overflow:hidden}\r\n.aw-scene canvas{display:block;width:100%!important;height:100%!important;outline:none}\r\n.aw-scene canvas:focus-visible{outline:2px solid #202327;outline-offset:-4px}\r\n.aw-scene #hint{position:absolute;bottom:16px;left:24px;right:24px;text-align:center;color:#ffffffa0;font-size:12px;line-height:1.6;letter-spacing:.03em;text-shadow:0 1px 8px #0008;transition:opacity 1.2s;pointer-events:none}\r\n.aw-scene #fps{display:none}\r\n.aw-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}\r\n.aw-error{position:absolute;inset:0;display:grid;place-items:center;color:#202327;font-size:14px}\r\n.aw-error[hidden]{display:none}\r\n.aw-scene[data-theme=light]{background:#fff}\r\n.aw-scene[data-theme=light] #stage{width:min(100%,calc(var(--motion-height,675px)*16/9));border-radius:0;box-shadow:none}\r\n.aw-scene[data-theme=light] #hint{display:none}\r\n@media(max-width:600px){.aw-scene #hint{bottom:12px;left:16px;right:16px;font-size:11px}}\r\n@media(prefers-reduced-motion:reduce){.aw-scene #hint{transition:none}}\r\n', '<section class="aw-scene notranslate" translate="no" aria-label="Album cover tunnel"><div id="stage"></div><p id="hint">\u6EDA\u8F6E / \u4E0A\u4E0B\u62D6\u52A8\uFF1A\u7A7F\u8FC7\u5C01\u9762\u96A7\u9053 \xB7 \u60AC\u505C\u5438\u8D77 \xB7 \u70B9\u51FB\u98DE\u5165\u4E2D\u592E \xB7 \u65B9\u5411\u952E\u5207\u6362 \xB7 \u7A7A\u683C\u6682\u505C</p><span id="fps"></span><p class="aw-status" aria-live="polite"></p><p class="aw-error" role="status" hidden></p></section>');
+  return createAlbumCoverTunnel(target, options, '.aw-scene{position:relative;width:100%;height:var(--motion-height,675px);min-height:180px;overflow:hidden;background:#05060f;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}\r\n.aw-scene #stage{position:absolute;inset:0;width:100%;height:100%;touch-action:none;overflow:hidden}\r\n.aw-scene canvas{display:block;width:100%!important;height:100%!important;outline:none}\r\n.aw-scene canvas:focus-visible{outline:2px solid #202327;outline-offset:-4px}\r\n.aw-scene #hint{position:absolute;bottom:16px;left:24px;right:24px;text-align:center;color:#ffffffa0;font-size:12px;line-height:1.6;letter-spacing:.03em;text-shadow:0 1px 8px #0008;transition:opacity 1.2s;pointer-events:none}\r\n.aw-scene #fps{display:none}\r\n.aw-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}\r\n.aw-error{position:absolute;inset:0;display:grid;place-items:center;color:#202327;font-size:14px}\r\n.aw-error[hidden]{display:none}\r\n.aw-scene[data-theme=light]{background:#fff}\r\n.aw-scene[data-theme=light] #stage{width:100%;height:100%;border-radius:0;box-shadow:none}\r\n.aw-scene[data-theme=light] #hint{display:none}\r\n@media(max-width:600px){.aw-scene #hint{bottom:12px;left:16px;right:16px;font-size:11px}}\r\n@media(prefers-reduced-motion:reduce){.aw-scene #hint{transition:none}}\r\n', '<section class="aw-scene notranslate" translate="no" aria-label="Album cover tunnel"><div id="stage"></div><p id="hint">\u6EDA\u8F6E / \u4E0A\u4E0B\u62D6\u52A8\uFF1A\u7A7F\u8FC7\u5C01\u9762\u96A7\u9053 \xB7 \u60AC\u505C\u5438\u8D77 \xB7 \u70B9\u51FB\u98DE\u5165\u4E2D\u592E \xB7 \u65B9\u5411\u952E\u5207\u6362 \xB7 \u7A7A\u683C\u6682\u505C</p><span id="fps"></span><p class="aw-status" aria-live="polite"></p><p class="aw-error" role="status" hidden></p></section>');
 }
 export {
   mountAlbumCoverTunnel

@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AlbumCoverTunnel } from './components/AlbumCoverTunnel';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AlbumCoverTunnelOptions } from './components/AlbumCoverTunnelEngine';
 import { TactileWelcomeButton } from './components/TactileWelcomeButton';
 import catalog from './data/anime.json';
@@ -9,6 +8,7 @@ type Anime = { id: string; era: string; title: string; year: number; cover: stri
 type Era = 'all' | '80' | '90' | '00' | '10';
 
 const animeCatalog = (catalog as Anime[]).filter(anime => anime.tracks.length > 0);
+const AlbumCoverTunnel = lazy(() => import('./components/AlbumCoverTunnel').then(module => ({ default: module.AlbumCoverTunnel })));
 const eras: { id: Era; label: string }[] = [
   { id: 'all', label: '全部年代' },
   { id: '80', label: '80年代' },
@@ -52,6 +52,10 @@ function App() {
   const [playing, setPlaying] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const [height, setHeight] = useState(560);
+  const [loading, setLoading] = useState(true);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [loadError, setLoadError] = useState('');
+  const loadGeneration = useRef(0);
   const audio = useRef<HTMLAudioElement>(null);
   const tunnelHost = useRef<HTMLElement>(null);
 
@@ -82,6 +86,10 @@ function App() {
   }, [batch, playAnime]);
 
   const switchEra = (next: Era) => {
+    loadGeneration.current++;
+    setLoading(true);
+    setLoadProgress(0);
+    setLoadError('');
     audio.current?.pause();
     setPlaying(false);
     setCurrent(null);
@@ -91,6 +99,10 @@ function App() {
   };
 
   const changeBatch = () => {
+    loadGeneration.current++;
+    setLoading(true);
+    setLoadProgress(0);
+    setLoadError('');
     audio.current?.pause();
     setPlaying(false);
     setCurrent(null);
@@ -113,19 +125,30 @@ function App() {
   };
 
   const leave = () => {
+    loadGeneration.current++;
+    setLoading(true);
+    setLoadProgress(0);
+    setLoadError('');
     audio.current?.pause();
     setPlaying(false);
     setEntered(false);
   };
 
-  const tunnelOptions = useMemo<AlbumCoverTunnelOptions>(() => ({
-    images: batch.map(anime => ({ src: anime.cover, alt: `${anime.title} — ${anime.year}` })),
-    active: selectedIndex ?? undefined,
-    onSelect,
-    height,
-    theme: 'light',
-    autoTravel: true,
-  }), [batch, selectedIndex, onSelect, height]);
+  const tunnelImages = useMemo(() => batch.map(anime => ({ src: anime.cover, alt: `${anime.title} — ${anime.year}` })), [batch]);
+  const tunnelOptions = useMemo<AlbumCoverTunnelOptions>(() => {
+    const generation = loadGeneration.current;
+    return {
+      images: tunnelImages,
+      active: selectedIndex ?? undefined,
+      onSelect,
+      onProgress: percent => { if (generation === loadGeneration.current) setLoadProgress(percent); },
+      onReady: () => { if (generation === loadGeneration.current) setLoading(false); },
+      onError: message => { if (generation === loadGeneration.current) { setLoadError(message); setLoading(false); } },
+      height,
+      theme: 'light',
+      autoTravel: true,
+    };
+  }, [tunnelImages, selectedIndex, onSelect, height, entered]);
 
   return <div className="page-shell">
     {!entered ? <main className="welcome-screen" aria-label="欢迎回到梦开始的地方">
@@ -139,8 +162,17 @@ function App() {
         <div className="era-switch" role="group" aria-label="选择年代">{eras.map(item => <button key={item.id} className={era === item.id ? 'era active' : 'era'} type="button" onClick={() => switchEra(item.id)} aria-pressed={era === item.id}>{item.label}</button>)}</div>
         <div className="toolbar-actions"><button className="refresh" type="button" onClick={changeBatch}><span>↻</span> 换一批</button><button className="random-button" onClick={randomPlay} type="button"><ShuffleIcon/> 随机听一首</button></div>
       </div>
-      <section className="tunnel-wrap" aria-label="探索动漫封面" ref={tunnelHost}>
-        {batch.length > 0 && <AlbumCoverTunnel options={tunnelOptions} className="tunnel" />}
+      <section className="tunnel-wrap" aria-label="探索动漫封面" aria-busy={loading} ref={tunnelHost}>
+        {batch.length > 0 && <Suspense fallback={null}><AlbumCoverTunnel options={tunnelOptions} className="tunnel" /></Suspense>}
+        {(loading || loadError) && <div className="tunnel-loading" role="status" aria-live="polite">
+          <div className="loading-content">
+            <div className="loading-mark" aria-hidden="true"><i/><i/><i/><i/></div>
+            <p className="loading-kicker">ANIME THEME RADIO</p>
+            <h2>{loadError ? '回忆暂时没有打开' : '正在翻开那些年的回忆'}</h2>
+            <p className="loading-caption">{loadError || `正在准备 ${batch.length} 张动漫封面，请稍候…`}</p>
+            {!loadError ? <><div className="loading-progress-row"><span>LOADING POSTERS</span><strong>{loadProgress}%</strong></div><div className="loading-progress-track" role="progressbar" aria-valuenow={loadProgress} aria-valuemin={0} aria-valuemax={100} aria-label="封面加载进度"><span style={{ width: `${loadProgress}%` }}/></div></> : <button type="button" onClick={changeBatch} className="loading-retry">换一批重试 ↗</button>}
+          </div>
+        </div>}
         <div className="tunnel-topline"><span>轻触动漫封面，重听那段旋律</span><span>{era === 'all' ? '跨越年代' : `${Number(era) >= 70 ? '19' : '20'}${era}S`}</span></div>
         <div className="tunnel-bottomline"><span>滚动 / 拖动穿梭 <b>↓</b></span><span>当前 {batch.length} 部动画</span></div>
       </section>

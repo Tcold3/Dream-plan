@@ -42,6 +42,20 @@ button:focus-visible,a:focus-visible{outline:2px solid #202327;outline-offset:3p
 .tunnel-topline,.tunnel-bottomline{position:absolute;left:3.2%;right:3.2%;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:2;pointer-events:none;font-size:11px;color:#50565a;letter-spacing:.08em;text-shadow:0 1px 5px #fff}
 .tunnel-topline{top:22px}.tunnel-bottomline{bottom:18px}
 .tunnel-bottomline b{font-size:15px;margin-left:6px;color:#486ec8}
+.tunnel-loading{position:absolute;inset:0;z-index:4;display:grid;place-items:center;padding:24px;background:#fff;color:#1d283a;text-align:center}
+.loading-content{width:min(420px,100%)}
+.loading-mark{height:72px;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:22px}
+.loading-mark i{display:block;width:5px;border-radius:8px;background:#78a8ef;animation:loading-wave 1s ease-in-out infinite alternate}
+.loading-mark i:nth-child(1){height:23px;animation-delay:-.5s}.loading-mark i:nth-child(2){height:43px;animation-delay:-.25s}.loading-mark i:nth-child(3){height:62px}.loading-mark i:nth-child(4){height:32px;animation-delay:-.75s}
+@keyframes loading-wave{from{transform:scaleY(.55);opacity:.55}to{transform:scaleY(1);opacity:1}}
+.loading-kicker{margin:0 0 12px;color:#7f98ba;font-size:10px;font-weight:700;letter-spacing:.26em}
+.loading-content h2{margin:0;color:#263956;font-size:clamp(20px,3vw,27px);font-weight:700;letter-spacing:.08em}
+.loading-caption{margin:12px 0 36px;color:#8b97a7;font-size:12px;line-height:1.7}
+.loading-progress-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;color:#8c9cb4;font-size:10px;font-weight:700;letter-spacing:.12em}
+.loading-progress-row strong{color:#5485cf;font-size:15px;letter-spacing:0;font-variant-numeric:tabular-nums}
+.loading-progress-track{height:5px;overflow:hidden;border-radius:99px;background:#eaf1fa;text-align:left}
+.loading-progress-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#8ed6f3,#6c99e5);transition:width .2s ease}
+.loading-retry{border:0;background:#6c99e5;color:#fff;border-radius:100px;padding:11px 18px;font-size:12px;font-weight:700}
 
 .now-playing{height:124px;padding:14px 3.2%;display:flex;gap:20px;align-items:center;background:#fff;flex:none}
 .now-label{width:155px;flex:none;display:flex;align-items:center;gap:12px;color:#81878b;font-size:9px;letter-spacing:.13em;line-height:1.7}
