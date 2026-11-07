@@ -7,7 +7,9 @@ type Track = { kind: 'OP' | 'ED'; title: string; artist: string; preview: string
 type Anime = { id: string; era: string; title: string; year: number; cover: string; url: string; tracks: Track[] };
 type Era = 'all' | '80' | '90' | '00' | '10';
 
-const animeCatalog = (catalog as Anime[]).filter(anime => anime.tracks.length > 0);
+const animeCatalog = (catalog as Anime[])
+  .filter(anime => anime.tracks.length > 0)
+  .map(anime => ({ ...anime, cover: `${import.meta.env.BASE_URL}${anime.cover.replace(/^\//, '')}` }));
 const animeByCover = new Map(animeCatalog.map(anime => [anime.cover, anime]));
 const AlbumCoverTunnel = lazy(() => import('./components/AlbumCoverTunnel').then(module => ({ default: module.AlbumCoverTunnel })));
 const eras: { id: Era; label: string }[] = [
