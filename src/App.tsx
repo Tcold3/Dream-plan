@@ -43,6 +43,16 @@ function ShuffleIcon() {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m17 3 4 4-4 4"/><path d="M3 17h4c5 0 5-10 10-10h4"/><path d="m17 13 4 4-4 4"/><path d="M3 7h4c2 0 3 1.5 4 3"/><path d="M14 14c1 1.8 2 3 3 3h4"/></svg>;
 }
 
+function LoadingMonogram({ progress }: { progress: number }) {
+  const shape = 'M30 210V32H65L120 130L175 32H210V210H175V94L132 171H108L65 94V210Z';
+  const fillHeight = 178 * Math.min(100, Math.max(0, progress)) / 100;
+  return <svg className="loading-monogram" viewBox="0 0 240 240" role="progressbar" aria-label="封面加载进度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
+    <defs><clipPath id="loading-m-shape"><path d={shape}/></clipPath><linearGradient id="loading-m-color" x1="0" y1="1" x2="1" y2="0"><stop stopColor="#8ed7ed"/><stop offset="1" stopColor="#6798e5"/></linearGradient></defs>
+    <rect x="0" y={210 - fillHeight} width="240" height={fillHeight} fill="url(#loading-m-color)" clipPath="url(#loading-m-shape)"/>
+    <path d={shape} fill="none" stroke="#a8c7eb" strokeWidth="3" strokeLinejoin="round"/>
+  </svg>;
+}
+
 function App() {
   const [entered, setEntered] = useState(false);
   const [era, setEra] = useState<Era>('all');
@@ -142,7 +152,7 @@ function App() {
       active: selectedIndex ?? undefined,
       onSelect,
       onProgress: percent => { if (generation === loadGeneration.current) setLoadProgress(percent); },
-      onReady: () => { if (generation === loadGeneration.current) setLoading(false); },
+      onReady: () => { if (generation === loadGeneration.current) { setLoadProgress(100); window.setTimeout(() => { if (generation === loadGeneration.current) setLoading(false); }, 260); } },
       onError: message => { if (generation === loadGeneration.current) { setLoadError(message); setLoading(false); } },
       height,
       theme: 'light',
@@ -165,13 +175,7 @@ function App() {
       <section className="tunnel-wrap" aria-label="探索动漫封面" aria-busy={loading} ref={tunnelHost}>
         {batch.length > 0 && <Suspense fallback={null}><AlbumCoverTunnel options={tunnelOptions} className="tunnel" /></Suspense>}
         {(loading || loadError) && <div className="tunnel-loading" role="status" aria-live="polite">
-          <div className="loading-content">
-            <div className="loading-mark" aria-hidden="true"><i/><i/><i/><i/></div>
-            <p className="loading-kicker">ANIME THEME RADIO</p>
-            <h2>{loadError ? '回忆暂时没有打开' : '正在翻开那些年的回忆'}</h2>
-            <p className="loading-caption">{loadError || `正在准备 ${batch.length} 张动漫封面，请稍候…`}</p>
-            {!loadError ? <><div className="loading-progress-row"><span>LOADING POSTERS</span><strong>{loadProgress}%</strong></div><div className="loading-progress-track" role="progressbar" aria-valuenow={loadProgress} aria-valuemin={0} aria-valuemax={100} aria-label="封面加载进度"><span style={{ width: `${loadProgress}%` }}/></div></> : <button type="button" onClick={changeBatch} className="loading-retry">换一批重试 ↗</button>}
-          </div>
+          {loadError ? <div className="loading-error"><LoadingMonogram progress={0}/><p>{loadError}</p><button type="button" onClick={changeBatch}>换一批重试</button></div> : <LoadingMonogram progress={loadProgress}/>}
         </div>}
         <div className="tunnel-topline"><span>轻触动漫封面，重听那段旋律</span><span>{era === 'all' ? '跨越年代' : `${Number(era) >= 70 ? '19' : '20'}${era}S`}</span></div>
         <div className="tunnel-bottomline"><span>滚动 / 拖动穿梭 <b>↓</b></span><span>当前 {batch.length} 部动画</span></div>

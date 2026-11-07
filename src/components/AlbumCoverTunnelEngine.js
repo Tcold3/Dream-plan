@@ -32,7 +32,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     options.onError?.(errorEl.textContent);
     return s.controller;
   }
-  const PR = Math.min(devicePixelRatio, 1.5);
+  let PR = Math.min(devicePixelRatio, 1.5);
   renderer.setPixelRatio(PR);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -64,6 +64,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   bg.renderOrder = -1;
   camera.add(bg);
   bg.position.z = -60;
+  let dustTexture;
   {
     const c = document.createElement("canvas");
     c.width = c.height = 32;
@@ -81,8 +82,9 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     }
     const geo2 = new THREE.BufferGeometry();
     geo2.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    dustTexture = new THREE.CanvasTexture(c);
     var dust = new THREE.Points(geo2, new THREE.PointsMaterial({
-      map: new THREE.CanvasTexture(c),
+      map: dustTexture,
       size: 0.09,
       color: 8947848,
       transparent: true,
@@ -91,6 +93,24 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       blending: THREE.NormalBlending
     }));
     camera.add(dust);
+  }
+  const particleCount = 220;
+  const particleX = new Float32Array(particleCount), particleY = new Float32Array(particleCount), particleZ = new Float32Array(particleCount);
+  const streakPositions = new Float32Array(particleCount * 6), sparklePositions = new Float32Array(particleCount * 3);
+  const streakGeometry = new THREE.BufferGeometry(), sparkleGeometry = new THREE.BufferGeometry();
+  streakGeometry.setAttribute("position", new THREE.BufferAttribute(streakPositions, 3).setUsage(THREE.DynamicDrawUsage));
+  sparkleGeometry.setAttribute("position", new THREE.BufferAttribute(sparklePositions, 3).setUsage(THREE.DynamicDrawUsage));
+  const streakMaterial = new THREE.LineBasicMaterial({ color: 0x80afe6, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+  const sparkleMaterial = new THREE.PointsMaterial({ map: dustTexture, color: 0x5696dc, size: 0.13, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+  const streaks = new THREE.LineSegments(streakGeometry, streakMaterial), sparkles = new THREE.Points(sparkleGeometry, sparkleMaterial);
+  streaks.frustumCulled = sparkles.frustumCulled = false;
+  streaks.renderOrder = sparkles.renderOrder = 3;
+  camera.add(streaks, sparkles);
+  for (let i = 0; i < particleCount; i++) {
+    const angle = Math.random() * Math.PI * 2, radius = 1.5 + Math.sqrt(Math.random()) * 13;
+    particleX[i] = Math.cos(angle) * radius;
+    particleY[i] = Math.sin(angle) * radius * 0.64;
+    particleZ[i] = -2 - Math.random() * 37;
   }
   // Posters are portrait artwork. Keep their aspect ratio all the way from
   // the source image to the card face instead of padding a square texture.
@@ -107,13 +127,20 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     img.src = src;
     await img.decode();
     if (dead) throw new Error("destroyed");
-    g.fillStyle = "#f3f3f3";
+    const frame = 16;
+    const innerWidth = TEX_W - frame * 2, innerHeight = TEX_H - frame * 2;
+    g.fillStyle = "#e5e8eb";
     g.fillRect(0, 0, TEX_W, TEX_H);
-    const scale = Math.min(TEX_W / img.width, TEX_H / img.height);
+    const scale = Math.max(innerWidth / img.width, innerHeight / img.height);
     const width = img.width * scale, height = img.height * scale;
     g.imageSmoothingEnabled = true;
     g.imageSmoothingQuality = "high";
+    g.save();
+    g.beginPath();
+    g.rect(frame, frame, innerWidth, innerHeight);
+    g.clip();
     g.drawImage(img, (TEX_W - width) / 2, (TEX_H - height) / 2, width, height);
+    g.restore();
     data.set(g.getImageData(0, 0, TEX_W, TEX_H).data, index * TEX_W * TEX_H * 4);
   }
   async function buildArray(images, report) {
@@ -235,6 +262,10 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
         c *= .9 + .1 * smoothstep(.0, .35, e);                           // \u5370\u5237\u9762\u8FB9\u7F18\u5FAE\u6697
         c += (h21(floor(vUv * 700.)) - .5) * .018;                      // \u7EB8\u5F20\u9897\u7C92
         c += uRim * fres * .045;
+        vec2 borderDistance = min(vUv, 1. - vUv) * vec2(768., 1088.);
+        float border = min(borderDistance.x, borderDistance.y);
+        c = mix(c, vec3(.78, .80, .83), 1. - smoothstep(14., 18., border));
+        c = mix(c, vec3(.43, .47, .52), 1. - smoothstep(2., 5., border));
       } else if (vN.z < -.5) {
         c = vec3(.26, .27, .28);                                      // \u80CC\u677F
       } else {
@@ -338,6 +369,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   });
   const CAM0 = FOCUS;
   let travel = 0, vel = 0, idle = 0, goTo = null, heroAmt = 0, hovered = null, heroC = covers.find((c) => c.tex === 0);
+  let particleImpulse = 0, particleDirection = 1;
   const smooth = (a, b, x) => {
     const t = Math.min(Math.max((x - a) / (b - a), 0), 1);
     return t * t * (3 - 2 * t);
@@ -417,10 +449,40 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), P = new THREE.Vector3(), SC = new THREE.Vector3();
   const tmp = new THREE.Vector3();
   const tanHalf = Math.tan(THREE.MathUtils.degToRad(16));
+  function updateParticles(input, dt) {
+    if (instant()) {
+      streakMaterial.opacity = sparkleMaterial.opacity = 0;
+      return;
+    }
+    if (Math.abs(input) > 1e-4) {
+      particleDirection = Math.sign(input);
+      particleImpulse = Math.min(1, particleImpulse + Math.abs(input) * 1.8);
+    }
+    particleImpulse *= Math.exp(-dt * 1.3);
+    streakMaterial.opacity = particleImpulse * 0.42;
+    sparkleMaterial.opacity = particleImpulse * 0.6;
+    if (particleImpulse < 0.01) return;
+    const speed = dt * (5 + particleImpulse * 30) * particleDirection;
+    const tail = particleDirection * (0.5 + particleImpulse * 2.2);
+    for (let i = 0; i < particleCount; i++) {
+      let z = particleZ[i] + speed;
+      if (z > -1.4) z = -39;
+      else if (z < -39) z = -1.4;
+      particleZ[i] = z;
+      const lineIndex = i * 6, pointIndex = i * 3, x = particleX[i], y = particleY[i];
+      streakPositions[lineIndex] = streakPositions[lineIndex + 3] = sparklePositions[pointIndex] = x;
+      streakPositions[lineIndex + 1] = streakPositions[lineIndex + 4] = sparklePositions[pointIndex + 1] = y;
+      streakPositions[lineIndex + 2] = sparklePositions[pointIndex + 2] = z;
+      streakPositions[lineIndex + 5] = z - tail;
+    }
+    streakGeometry.attributes.position.needsUpdate = true;
+    sparkleGeometry.attributes.position.needsUpdate = true;
+  }
   function update(dt, t) {
     const input = wheel * 4e-3 + dragV * 0.02;
     wheel = 0;
     dragV = 0;
+    updateParticles(input, dt);
     if (Math.abs(input) > 1e-4) {
       vel += input;
       idle = 0;
