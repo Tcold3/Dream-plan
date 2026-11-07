@@ -103,8 +103,11 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     img.src = src;
     await img.decode();
     if (dead) throw new Error("destroyed");
-    g.clearRect(0, 0, TS, TS);
-    g.drawImage(img, 0, 0, TS, TS);
+    g.fillStyle = "#e9e9e9";
+    g.fillRect(0, 0, TS, TS);
+    const scale = Math.min(TS / img.width, TS / img.height);
+    const width = img.width * scale, height = img.height * scale;
+    g.drawImage(img, (TS - width) / 2, (TS - height) / 2, width, height);
     data.set(g.getImageData(0, 0, TS, TS).data, index * TS * TS * 4);
   }
   async function buildArray(images) {
@@ -345,7 +348,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
   }
   const ease = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   function onClick() {
-    if (hovered && hovered !== heroC) select(hovered);
+    if (hovered) select(hovered);
   }
   function select(t, notify = true) {
     const L = t.L, occ = centerOf(L);
@@ -457,7 +460,7 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     heroAmt = damp(heroAmt, settled && newHero === heroC ? 1 : 0, settled ? 2.8 : 7, dt);
     if (!dragging) pick();
     else hovered = null;
-    el.style.cursor = dragging ? "grabbing" : hovered && hovered !== heroC ? "pointer" : "grab";
+    el.style.cursor = dragging ? "grabbing" : hovered ? "pointer" : "grab";
     const order = covers.slice().sort((a, b) => a.L.z + a.zo - (b.L.z + b.zo));
     let n = 0;
     for (const c of order) {

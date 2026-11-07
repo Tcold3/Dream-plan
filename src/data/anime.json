@@ -1,0 +1,684 @@
+[
+  {
+    "id": "199",
+    "era": "80",
+    "title": "龙珠",
+    "year": 1986,
+    "cover": "/posters/199.jpg",
+    "url": "https://kitsu.io/anime/dragon-ball",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "摩訶不思議アドベンチャー! (2005 ver.)",
+        "artist": "高橋 洋樹",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1b/7b/b2/1b7bb282-6c88-445b-d6ed-89e1b562f45d/mzaf_8617890909316027185.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E6%91%A9%E8%A8%B6%E4%B8%8D%E6%80%9D%E8%AD%B0%E3%82%A2%E3%83%89%E3%83%99%E3%83%B3%E3%83%81%E3%83%A3%E3%83%BC-2005-ver/433591355?i=433591362&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "ロマンティックあげるよ(21st century ver.)",
+        "artist": "橋本 潮",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9a/17/89/9a1789b8-b57f-e938-cfd9-7e59f4c3cd90/mzaf_3888898174794071851.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%83%AD%E3%83%9E%E3%83%B3%E3%83%86%E3%82%A3%E3%83%83%E3%82%AF%E3%81%82%E3%81%92%E3%82%8B%E3%82%88-21st-century-ver/1048913383?i=1048913385&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "1129",
+    "era": "80",
+    "title": "圣斗士星矢",
+    "year": 1986,
+    "cover": "/posters/1129.jpg",
+    "url": "https://kitsu.io/anime/saint-seiya",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "ペガサス幻想(21st century ver.)",
+        "artist": "MAKE-UP",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/83/ec/b7/83ecb7f2-5e65-a99e-8088-f1e05285484e/mzaf_10558613853622948095.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%83%9A%E3%82%AC%E3%82%B5%E3%82%B9%E5%B9%BB%E6%83%B3-21st-century-ver/362056398?i=362056426&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "永遠ブルー(21st century ver.)",
+        "artist": "MAKE-UP",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/32/65/7e/32657ee3-c2a3-6121-0413-90f4c7ff4a89/mzaf_3648086525207208254.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E6%B0%B8%E9%81%A0%E3%83%96%E3%83%AB%E3%83%BC-21st-century-ver/362056398?i=362056445&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "1316",
+    "era": "80",
+    "title": "城市猎人",
+    "year": 1987,
+    "cover": "/posters/1316.jpg",
+    "url": "https://kitsu.io/anime/city-hunter",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "City Hunter 〜愛よ消えないで〜",
+        "artist": "小比類巻かほる",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/45/c6/9b/45c69bb3-5a74-d419-745d-37fa5c5c5a64/mzaf_16127204375437729105.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/city-hunter-%E6%84%9B%E3%82%88%E6%B6%88%E3%81%88%E3%81%AA%E3%81%84%E3%81%A7/1538962194?i=1538962364&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "Get Wild",
+        "artist": "TM NETWORK",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9c/91/bb/9c91bbe9-0896-59ef-74a3-27707aff817a/mzaf_12088819436803547563.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/get-wild/1537085348?i=1537085349&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "1451",
+    "era": "80",
+    "title": "足球小将",
+    "year": 1983,
+    "cover": "/posters/1451.jpg",
+    "url": "https://kitsu.io/anime/captain-tsubasa",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "燃えてヒーロー",
+        "artist": "沖田 浩之",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/da/93/f7/da93f74b-118f-012a-9f42-9eafadd32167/mzaf_1087546426452374671.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E7%87%83%E3%81%88%E3%81%A6%E3%83%92%E3%83%BC%E3%83%AD%E3%83%BC/1536719643?i=1536719993&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "冬のライオン",
+        "artist": "沖田 浩之",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/83/c1/c9/83c1c9e1-0b85-59c2-bf74-7f5d86aa82b7/mzaf_4644511330937050140.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E5%86%AC%E3%81%AE%E3%83%A9%E3%82%A4%E3%82%AA%E3%83%B3/1536719643?i=1536719985&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "186",
+    "era": "80",
+    "title": "乱马1/2",
+    "year": 1989,
+    "cover": "/posters/186.jpg",
+    "url": "https://kitsu.io/anime/ranma-nettou-hen",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "じゃじゃ馬にさせないで",
+        "artist": "らんま1/2",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ba/5a/88/ba5a8860-549d-c982-4066-47fe771d11d7/mzaf_10757591292054215704.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%81%98%E3%82%83%E3%81%98%E3%82%83%E9%A6%AC%E3%81%AB%E3%81%95%E3%81%9B%E3%81%AA%E3%81%84%E3%81%A7/1470040366?i=1470040369&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "プラトニックつらぬいて",
+        "artist": "坂上香織",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/2a/38/6f/2a386f89-a09c-617d-fd98-751d46a304bb/mzaf_15796402945354934108.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%83%97%E3%83%A9%E3%83%88%E3%83%8B%E3%83%83%E3%82%AF%E3%81%A4%E3%82%89%E3%81%AC%E3%81%84%E3%81%A6/720456982?i=720457106&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "720",
+    "era": "80",
+    "title": "龙珠Z",
+    "year": 1989,
+    "cover": "/posters/720.jpg",
+    "url": "https://kitsu.io/anime/dragon-ball-z",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "CHA-LA HEAD-CHA-LA",
+        "artist": "影山ヒロノブ",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2f/fd/fc/2ffdfc69-a05c-1774-a278-9d7cbc030147/mzaf_6866152415514728720.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/cha-la-head-cha-la/435413270?i=435413360&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "148",
+    "era": "90",
+    "title": "灌篮高手",
+    "year": 1993,
+    "cover": "/posters/148.jpg",
+    "url": "https://kitsu.io/anime/slam-dunk",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "君が好きだと叫びたい",
+        "artist": "BAAD",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/44/f1/e5/44f1e53e-bcdd-b595-f1d5-bf5978049956/mzaf_14136369863153406825.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%8C%E5%A5%BD%E3%81%8D%E3%81%A0%E3%81%A8%E5%8F%AB%E3%81%B3%E3%81%9F%E3%81%84/1693756743?i=1693756747&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "あなただけ見つめてる",
+        "artist": "大黒摩季",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/41/73/2a/41732aa5-f03a-48e4-417b-b761176d1ec9/mzaf_7416116157045010033.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%81%82%E3%81%AA%E3%81%9F%E3%81%A0%E3%81%91%E8%A6%8B%E3%81%A4%E3%82%81%E3%81%A6%E3%82%8B/1490814299?i=1490814550&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "489",
+    "era": "90",
+    "title": "美少女战士",
+    "year": 1992,
+    "cover": "/posters/489.jpg",
+    "url": "https://kitsu.io/anime/bishoujo-senshi-sailor-moon",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "Moonlight Legend",
+        "artist": "DALI",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/93/bf/f2/93bff215-8f07-cba1-1678-b36fb6665dac/mzaf_5250494687164194414.plus.aac.p.m4a",
+        "url": "https://music.apple.com/hk/album/moonlight-legend/1689408287?i=1689408288&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "Heart Moving",
+        "artist": "高松 美砂絵",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2c/3b/a6/2c3ba6ad-b147-6367-2cb6-5ba45f740712/mzaf_9533358012062384432.plus.aac.p.m4a",
+        "url": "https://music.apple.com/hk/album/heart-moving/1689408287?i=1689408293&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "21",
+    "era": "90",
+    "title": "新世纪福音战士",
+    "year": 1995,
+    "cover": "/posters/21.jpg",
+    "url": "https://kitsu.io/anime/neon-genesis-evangelion",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "残酷な天使のテーゼ",
+        "artist": "高橋洋子",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c7/d7/de/c7d7de40-0978-3ba4-c59b-6e3e2965b9af/mzaf_17511570656011858412.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E6%AE%8B%E9%85%B7%E3%81%AA%E5%A4%A9%E4%BD%BF%E3%81%AE%E3%83%86%E3%83%BC%E3%82%BC/1549545977?i=1549545978&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "FLY ME TO THE MOON",
+        "artist": "Claire",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/af/d4/e3/afd4e391-aa4a-1ab7-53dc-374aa2c86550/mzaf_16101485493373311602.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/fly-me-to-the-moon/258925696?i=258925768&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "486",
+    "era": "90",
+    "title": "宝可梦",
+    "year": 1997,
+    "cover": "/posters/486.jpg",
+    "url": "https://kitsu.io/anime/pokemon",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "めざせポケモンマスター",
+        "artist": "松本梨香",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e1/1f/24/e11f24a9-ba20-1475-4732-e647030e1006/mzaf_9727829491230679022.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%82%81%E3%81%96%E3%81%9B%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC/583838447?i=583838497&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "ひゃくごじゅういち",
+        "artist": "オーキド博士(石塚運昇) & ポケモンキッズ",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/31/88/75/31887587-1e7e-d227-95d8-3de56bbeb3d0/mzaf_10454772924202407895.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%81%B2%E3%82%83%E3%81%8F%E3%81%94%E3%81%98%E3%82%85%E3%81%86%E3%81%84%E3%81%A1/583838447?i=583838555&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "207",
+    "era": "90",
+    "title": "魔卡少女樱",
+    "year": 1998,
+    "cover": "/posters/207.jpg",
+    "url": "https://kitsu.io/anime/cardcaptor-sakura",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "プラチナ",
+        "artist": "坂本真綾",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b2/31/5a/b2315adb-7bd3-4f96-6b91-fdb1f9d61dec/mzaf_3454108943439178182.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%83%97%E3%83%A9%E3%83%81%E3%83%8A/543496271?i=543496280&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "Groovy!",
+        "artist": "広瀬香美",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fc/bc/c6/fcbcc644-dced-b083-9e37-4de8baeb17b6/mzaf_9964208121290954796.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/groovy/202325943?i=202326701&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "509",
+    "era": "90",
+    "title": "数码宝贝大冒险",
+    "year": 1999,
+    "cover": "/posters/509.jpg",
+    "url": "https://kitsu.io/anime/digimon-adventure",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "Butter-Fly",
+        "artist": "和田光司",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/Music2/v4/78/51/44/785144cd-5451-984f-fa74-6a4179f66197/mzaf_5031770640080910052.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/butter-fly/520527570?i=520527998&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "210",
+    "era": "90",
+    "title": "名侦探柯南",
+    "year": 1996,
+    "cover": "/posters/210.jpg",
+    "url": "https://kitsu.io/anime/detective-conan",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "謎",
+        "artist": "小松未歩",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/07/dc/cf/07dccf17-8844-2cad-eec3-d760342237db/mzaf_11511658062417426464.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E8%AC%8E/1618913657?i=1618913658&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "STEP BY STEP (LIVE)",
+        "artist": "ZIGGY",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/fe/ed/da/feeddab8-8e81-2b3e-d162-5d2738722d8a/mzaf_9425345193065301631.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/step-by-step-live/1294673638?i=1294674196&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "era": "90",
+    "title": "海贼王",
+    "year": 1999,
+    "cover": "/posters/12.jpg",
+    "url": "https://kitsu.io/anime/one-piece",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "ウィーアー!",
+        "artist": "きただにひろし",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/25/e4/c9/25e4c974-3bc3-d9e7-abe1-37283a94c0ce/mzaf_4403614388959647499.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%82%A6%E3%82%A3%E3%83%BC%E3%82%A2%E3%83%BC/1772211458?i=1772211459&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "memories ~17years after~",
+        "artist": "大槻マキ",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/53/51/28/53512853-9b6f-3f1d-f1f2-554c54bb4bd5/mzaf_7847336705709294155.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/memories-17years-after/1131499447?i=1131499635&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "11",
+    "era": "00",
+    "title": "火影忍者",
+    "year": 2002,
+    "cover": "/posters/11.jpg",
+    "url": "https://kitsu.io/anime/naruto",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "遥か彼方",
+        "artist": "ASIAN KUNG-FU GENERATION",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/43/de/ff/43deffe5-2364-7450-f3cc-f4e88fa55a3c/mzaf_11108385612711234952.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E9%81%A5%E3%81%8B%E5%BD%BC%E6%96%B9/1536394883?i=1536394884&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "Wind",
+        "artist": "Akeboshi",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0d/74/72/0d7472d0-7b21-5bf4-83fe-2132e97e579a/mzaf_2967391379923755820.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/wind/1536226793?i=1536226794&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "224",
+    "era": "00",
+    "title": "犬夜叉",
+    "year": 2000,
+    "cover": "/posters/224.jpg",
+    "url": "https://kitsu.io/anime/inuyasha",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "CHANGE THE WORLD",
+        "artist": "V6",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/17/74/f7/1774f740-7c18-c435-fd2b-1b3f6b22fe71/mzaf_2216198936120647613.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/change-the-world/1849085798?i=1849085807&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "My will",
+        "artist": "dream",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c4/4e/f6/c44ef621-1b95-69b1-5af5-ade39042a5da/mzaf_17813241877527285281.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/my-will/209164447?i=209169528&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "244",
+    "era": "00",
+    "title": "死神",
+    "year": 2004,
+    "cover": "/posters/244.jpg",
+    "url": "https://kitsu.io/anime/bleach",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "*〜アスタリスク〜",
+        "artist": "ORANGE RANGE",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/15/1d/68/151d6865-cfcd-8763-ceef-d21d02499f12/mzaf_2400936301138394563.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%B9%E3%82%BF%E3%83%AA%E3%82%B9%E3%82%AF/1537381401?i=1537381402&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "Life is Like a Boat",
+        "artist": "Rie fu",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1f/cf/ac/1fcfac4b-f510-0ed3-74bf-90037c7616d9/mzaf_12823854741382058830.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/life-is-like-a-boat/1537229511?i=1537229523&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "100",
+    "era": "00",
+    "title": "钢之炼金术师",
+    "year": 2003,
+    "cover": "/posters/100.jpg",
+    "url": "https://kitsu.io/anime/fullmetal-alchemist",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "メリッサ",
+        "artist": "ポルノグラフィティ",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cc/a2/6e/cca26ea1-9049-bd24-ea8d-904aaa6c6259/mzaf_14772059300386057931.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%83%A1%E3%83%AA%E3%83%83%E3%82%B5/1537264851?i=1537264863&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "消せない罪",
+        "artist": "北出菜奈",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/14/0f/d9/140fd933-7c22-a084-8f21-93fa5799291c/mzaf_10503888397897487960.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E6%B6%88%E3%81%9B%E3%81%AA%E3%81%84%E7%BD%AA/1537231987?i=1537231989&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "1376",
+    "era": "00",
+    "title": "死亡笔记",
+    "year": 2006,
+    "cover": "/posters/1376.jpg",
+    "url": "https://kitsu.io/anime/death-note",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "the WORLD",
+        "artist": "NIGHTMARE",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/62/87/b6/6287b64a-c100-c617-3f7c-c456e3239ec1/mzaf_13555479733014526931.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/the-world/279778125?i=279778131&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "アルミナ",
+        "artist": "NIGHTMARE",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a7/06/0e/a7060eb7-0fbf-df1c-7a7d-a32183f6d48e/mzaf_10406616752494269395.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%82%A2%E3%83%AB%E3%83%9F%E3%83%8A/279778125?i=279778143&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "1415",
+    "era": "00",
+    "title": "反叛的鲁路修",
+    "year": 2006,
+    "cover": "/posters/1415.jpg",
+    "url": "https://kitsu.io/anime/code-geass-lelouch-of-the-rebellion",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "COLORS",
+        "artist": "FLOW",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/47/c5/8d/47c58df5-a1fb-0229-7a06-2d2a50fc88dd/mzaf_13383564351589602080.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/colors/1536479133?i=1536479348&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "勇侠青春謳",
+        "artist": "ALI PROJECT",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/56/c6/ca/56c6caf5-7ea1-a95e-2a61-93163ba7ecb5/mzaf_4235458392458672229.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E5%8B%87%E4%BE%A0%E9%9D%92%E6%98%A5%E8%AC%B3/1148480172?i=1148480176&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "114",
+    "era": "00",
+    "title": "棋魂",
+    "year": 2001,
+    "cover": "/posters/114.jpg",
+    "url": "https://kitsu.io/anime/hikaru-no-go",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "Get Over",
+        "artist": "dream",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f3/1e/1f/f31e1f42-1a3f-6d6d-ce27-cecb52ae127c/mzaf_1685888145071382763.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/get-over/209164447?i=209167662&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "ヒトミノチカラ",
+        "artist": "観月ありさ",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/1f/70/11/1f7011e7-94d0-06c0-35a6-5f44f467a560/mzaf_12389611227402169403.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%83%92%E3%83%88%E3%83%9F%E3%83%8E%E3%83%81%E3%82%AB%E3%83%A9/987493633?i=987493642&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "777",
+    "era": "00",
+    "title": "NANA",
+    "year": 2006,
+    "cover": "/posters/777.jpg",
+    "url": "https://kitsu.io/anime/nana",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "rose",
+        "artist": "ANNA TSUCHIYA inspi' NANA(BLACK STONES)",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/80/2a/76/802a76c5-8da5-254a-1c8f-9ec6b8d902a8/mzaf_4527182252195648341.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/rose/218731266?i=218731357&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "a little pain",
+        "artist": "OLIVIA inspi' REIRA(TRAPNEST)",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5d/f0/40/5df04042-ba63-5b5b-458e-3e7b6bf4fde5/mzaf_13838920360649638413.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/a-little-pain/210483918?i=210484398&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "7442",
+    "era": "10",
+    "title": "进击的巨人",
+    "year": 2013,
+    "cover": "/posters/7442.jpg",
+    "url": "https://kitsu.io/anime/attack-on-titan",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "紅蓮の弓矢",
+        "artist": "Linked Horizon",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a1/80/18/a18018c5-c9ec-404b-8131-209d9da31e7d/mzaf_16053807441322295049.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E7%B4%85%E8%93%AE%E3%81%AE%E5%BC%93%E7%9F%A2/1229977139?i=1229977141&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "美しき残酷な世界",
+        "artist": "日笠陽子",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1c/78/5d/1c785dc5-0b00-7caf-02de-0c8a2e7a3d1b/mzaf_16558542521184050320.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E7%BE%8E%E3%81%97%E3%81%8D%E6%AE%8B%E9%85%B7%E3%81%AA%E4%B8%96%E7%95%8C/635819151?i=635819165&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "41370",
+    "era": "10",
+    "title": "鬼灭之刃",
+    "year": 2019,
+    "cover": "/posters/41370.jpg",
+    "url": "https://kitsu.io/anime/kimetsu-no-yaiba",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "紅蓮華",
+        "artist": "LiSA",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d7/45/22/d7452274-6107-7ace-420b-1b509d55d067/mzaf_15546458713313472040.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E7%B4%85%E8%93%AE%E8%8F%AF/1538286722?i=1538286723&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "from the edge (feat. LiSA)",
+        "artist": "FictionJunction",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/97/02/bd/9702bdd4-211f-455c-dc7e-beacacda1910/mzaf_17192734071891459946.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/from-the-edge-feat-lisa/1537909392?i=1537909393&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "8133",
+    "era": "10",
+    "title": "排球少年!!",
+    "year": 2014,
+    "cover": "/posters/8133.jpg",
+    "url": "https://kitsu.io/anime/haikyuu",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "イマジネーション",
+        "artist": "SPYAIR",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5a/28/8e/5a288e76-5276-eb24-4621-0702a27c9c00/mzaf_25025913697395051.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%82%A4%E3%83%9E%E3%82%B8%E3%83%8D%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3/1535617445?i=1535617596&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "天地ガエシ",
+        "artist": "NICO Touches the Walls",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1d/c3/1d/1dc31d47-0c1e-e964-18cb-3313d19c39bf/mzaf_5881455612956206591.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E5%A4%A9%E5%9C%B0%E3%82%AC%E3%82%A8%E3%82%B7/1536452929?i=1536452930&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "11469",
+    "era": "10",
+    "title": "我的英雄学院",
+    "year": 2016,
+    "cover": "/posters/11469.jpg",
+    "url": "https://kitsu.io/anime/boku-no-hero-academia",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "THE DAY",
+        "artist": "ポルノグラフィティ",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ab/b1/22/abb122bf-d8d5-a8b9-54e2-8e989329a4b5/mzaf_5742299811862149723.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/the-day/1538258222?i=1538258224&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "HEROES",
+        "artist": "Brian the Sun",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c9/e7/b3/c9e7b3c9-38fc-a351-4278-f5ed26e17d35/mzaf_13828512515109427508.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/heroes/1536273661?i=1536273662&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "10740",
+    "era": "10",
+    "title": "一拳超人",
+    "year": 2015,
+    "cover": "/posters/10740.jpg",
+    "url": "https://kitsu.io/anime/one-punch-man",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "THE HERO !! 〜怒れる拳に火をつけろ〜",
+        "artist": "JAM Project",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/01/e6/60/01e66011-e69e-6c98-584b-dacd95b72aa7/mzaf_6587845126740448256.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/the-hero-%E6%80%92%E3%82%8C%E3%82%8B%E6%8B%B3%E3%81%AB%E7%81%AB%E3%82%92%E3%81%A4%E3%81%91%E3%82%8D/6817768205?i=6817768463&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "星より先に見つけてあげる",
+        "artist": "森口博子",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/03/4d/fb/034dfbeb-5b1b-b578-d2c0-26c08af34e16/mzaf_12980057845163523687.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E6%98%9F%E3%82%88%E3%82%8A%E5%85%88%E3%81%AB%E8%A6%8B%E3%81%A4%E3%81%91%E3%81%A6%E3%81%82%E3%81%92%E3%82%8B/1815243481?i=1815243482&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "8403",
+    "era": "10",
+    "title": "四月是你的谎言",
+    "year": 2014,
+    "cover": "/posters/8403.jpg",
+    "url": "https://kitsu.io/anime/shigatsu-wa-kimi-no-uso",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "光るなら",
+        "artist": "Goose house",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/fd/9e/16/fd9e169b-7019-a4fc-d95d-a56ec3363a50/mzaf_6574835773024971167.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E5%85%89%E3%82%8B%E3%81%AA%E3%82%89/1537451762?i=1537451763&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "キラメキ",
+        "artist": "wacci",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/15/fd/2d/15fd2ddd-2505-3db3-a947-5a109271756b/mzaf_1459740451431902946.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E3%82%AD%E3%83%A9%E3%83%A1%E3%82%AD/1536273929?i=1536273932&uo=4"
+      }
+    ]
+  },
+  {
+    "id": "8271",
+    "era": "10",
+    "title": "东京喰种",
+    "year": 2014,
+    "cover": "/posters/8271.jpg",
+    "url": "https://kitsu.io/anime/tokyo-ghoul",
+    "tracks": [
+      {
+        "kind": "OP",
+        "title": "unravel",
+        "artist": "TK from 凛として時雨",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/47/d8/df/47d8df4c-f4ea-aa54-ca53-a7028c14e009/mzaf_10498383233375963447.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/unravel/1535535910?i=1535535911&uo=4"
+      },
+      {
+        "kind": "ED",
+        "title": "聖者たち",
+        "artist": "People In The Box",
+        "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/28/4f/9c/284f9cc4-7db2-81a4-f20c-5a2bcc21dd7f/mzaf_14078677668530363426.plus.aac.p.m4a",
+        "url": "https://music.apple.com/jp/album/%E8%81%96%E8%80%85%E3%81%9F%E3%81%A1/894901044?i=894901052&uo=4"
+      }
+    ]
+  }
+]

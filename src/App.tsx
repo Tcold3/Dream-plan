@@ -2,20 +2,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlbumCoverTunnel } from './components/AlbumCoverTunnel';
 import type { AlbumCoverTunnelOptions } from './components/AlbumCoverTunnelEngine';
 import { TactileWelcomeButton } from './components/TactileWelcomeButton';
-import catalog from './data/albums.json';
+import catalog from './data/anime.json';
 
-type Track = { title: string; preview: string; url: string };
-type Album = { id: string; era: string; title: string; artist: string; year: number; cover: string; url: string; tracks: Track[] };
-type Era = 'all' | '80' | '90' | '00' | '10' | '20';
+type Track = { kind: 'OP' | 'ED'; title: string; artist: string; preview: string; url: string };
+type Anime = { id: string; era: string; title: string; year: number; cover: string; url: string; tracks: Track[] };
+type Era = 'all' | '80' | '90' | '00' | '10';
 
-const albums = catalog as Album[];
+const animeCatalog = (catalog as Anime[]).filter(anime => anime.tracks.length > 0);
 const eras: { id: Era; label: string }[] = [
   { id: 'all', label: '全部年代' },
   { id: '80', label: '80年代' },
   { id: '90', label: '90年代' },
   { id: '00', label: '00年代' },
   { id: '10', label: '10年代' },
-  { id: '20', label: '20年代' },
 ];
 
 function shuffle<T>(items: T[]) {
@@ -27,11 +26,11 @@ function shuffle<T>(items: T[]) {
   return copy;
 }
 
-function makeBatch(era: Era, previous: string[] = []): Album[] {
-  const pool = era === 'all' ? albums : albums.filter(album => album.era === era);
-  const size = Math.min(era === 'all' ? 12 : 5, pool.length);
-  const picked = shuffle(pool.filter(album => !previous.includes(album.id))).slice(0, size);
-  if (picked.length < size) picked.push(...shuffle(pool.filter(album => !picked.includes(album))).slice(0, size - picked.length));
+function makeBatch(era: Era, previous: string[] = []): Anime[] {
+  const pool = era === 'all' ? animeCatalog : animeCatalog.filter(anime => anime.era === era);
+  const size = Math.min(era === 'all' ? 12 : 3, pool.length);
+  const picked = shuffle(pool.filter(anime => !previous.includes(anime.id))).slice(0, size);
+  if (picked.length < size) picked.push(...shuffle(pool.filter(anime => !picked.includes(anime))).slice(0, size - picked.length));
   return picked;
 }
 
@@ -47,9 +46,9 @@ function ShuffleIcon() {
 function App() {
   const [entered, setEntered] = useState(false);
   const [era, setEra] = useState<Era>('all');
-  const [batch, setBatch] = useState<Album[]>(() => makeBatch('all'));
+  const [batch, setBatch] = useState<Anime[]>(() => makeBatch('all'));
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [current, setCurrent] = useState<{ album: Album; track: Track } | null>(null);
+  const [current, setCurrent] = useState<{ anime: Anime; track: Track } | null>(null);
   const [playing, setPlaying] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const [height, setHeight] = useState(560);
@@ -66,20 +65,21 @@ function App() {
     return () => observer.disconnect();
   }, [entered]);
 
-  const playAlbum = useCallback((album: Album, index: number) => {
-    const track = album.tracks[Math.floor(Math.random() * album.tracks.length)];
+  const playAnime = useCallback((anime: Anime, index: number, kind?: 'OP' | 'ED') => {
+    const choices = kind ? anime.tracks.filter(track => track.kind === kind) : anime.tracks;
+    const track = choices[Math.floor(Math.random() * choices.length)];
     if (!track || !audio.current) return;
     setSelectedIndex(index);
-    setCurrent({ album, track });
+    setCurrent({ anime, track });
     setAudioError(false);
     audio.current.src = track.preview;
     audio.current.play().then(() => setPlaying(true)).catch(() => { setPlaying(false); setAudioError(true); });
   }, []);
 
   const onSelect = useCallback((index: number) => {
-    const album = batch[index];
-    if (album) playAlbum(album, index);
-  }, [batch, playAlbum]);
+    const anime = batch[index];
+    if (anime) playAnime(anime, index);
+  }, [batch, playAnime]);
 
   const switchEra = (next: Era) => {
     audio.current?.pause();
@@ -94,7 +94,7 @@ function App() {
     audio.current?.pause();
     setPlaying(false);
     setCurrent(null);
-    setBatch(makeBatch(era, batch.map(album => album.id)));
+    setBatch(makeBatch(era, batch.map(anime => anime.id)));
     setSelectedIndex(null);
   };
 
@@ -102,7 +102,7 @@ function App() {
     if (!batch.length) return;
     const candidates = batch.map((_, i) => i).filter(i => i !== selectedIndex);
     const index = candidates[Math.floor(Math.random() * candidates.length)] ?? 0;
-    playAlbum(batch[index], index);
+    playAnime(batch[index], index);
   };
 
   const togglePlay = () => {
@@ -119,7 +119,7 @@ function App() {
   };
 
   const tunnelOptions = useMemo<AlbumCoverTunnelOptions>(() => ({
-    images: batch.map(album => ({ src: album.cover, alt: `${album.title} — ${album.artist}` })),
+    images: batch.map(anime => ({ src: anime.cover, alt: `${anime.title} — ${anime.year}` })),
     active: selectedIndex ?? undefined,
     onSelect,
     height,
@@ -128,27 +128,27 @@ function App() {
   }), [batch, selectedIndex, onSelect, height]);
 
   return <div className="page-shell">
-    {!entered ? <main className="welcome-screen" aria-label="欢迎来到音乐纪元">
+    {!entered ? <main className="welcome-screen" aria-label="欢迎回到梦开始的地方">
       <TactileWelcomeButton onClick={() => setEntered(true)} />
-    </main> : <main className="experience" aria-label="音乐纪元专辑隧道">
+    </main> : <main className="experience" aria-label="动漫主题曲隧道">
       <header className="site-header">
-        <button className="brand" type="button" onClick={leave} aria-label="返回欢迎页"><span className="brand-mark"><i/><i/><i/></span><span>音乐纪元<span className="brand-en">MUSIC TIME MACHINE</span></span></button>
-        <div className="header-right"><span className="on-air"><span/> 华语音乐 · 1980s—2020s</span></div>
+        <button className="brand" type="button" onClick={leave} aria-label="返回欢迎页"><span className="brand-mark"><i/><i/><i/></span><span>梦开始的地方<span className="brand-en">ANIME THEME RADIO</span></span></button>
+        <div className="header-right"><span className="on-air"><span/> 80、90 后的动漫记忆</span></div>
       </header>
       <div className="toolbar">
         <div className="era-switch" role="group" aria-label="选择年代">{eras.map(item => <button key={item.id} className={era === item.id ? 'era active' : 'era'} type="button" onClick={() => switchEra(item.id)} aria-pressed={era === item.id}>{item.label}</button>)}</div>
         <div className="toolbar-actions"><button className="refresh" type="button" onClick={changeBatch}><span>↻</span> 换一批</button><button className="random-button" onClick={randomPlay} type="button"><ShuffleIcon/> 随机听一首</button></div>
       </div>
-      <section className="tunnel-wrap" aria-label="探索专辑" ref={tunnelHost}>
+      <section className="tunnel-wrap" aria-label="探索动漫封面" ref={tunnelHost}>
         {batch.length > 0 && <AlbumCoverTunnel options={tunnelOptions} className="tunnel" />}
-        <div className="tunnel-topline"><span>轻触封面，开始听歌</span><span>{era === 'all' ? '跨越年代' : `${Number(era) >= 70 ? '19' : '20'}${era}S`}</span></div>
-        <div className="tunnel-bottomline"><span>滚动 / 拖动穿梭 <b>↓</b></span><span>当前 {batch.length} 张封面</span></div>
+        <div className="tunnel-topline"><span>轻触动漫封面，重听那段旋律</span><span>{era === 'all' ? '跨越年代' : `${Number(era) >= 70 ? '19' : '20'}${era}S`}</span></div>
+        <div className="tunnel-bottomline"><span>滚动 / 拖动穿梭 <b>↓</b></span><span>当前 {batch.length} 部动画</span></div>
       </section>
       <section className="now-playing" aria-label="正在播放">
         <div className="now-label"><span className="pulse-bars"><i/><i/><i/><i/></span><span>NOW PLAYING<br/><strong>此刻的声音</strong></span></div>
-        {current ? <><img src={current.album.cover} alt={`${current.album.title} 专辑封面`} className="mini-cover"/><div className="track-info"><p>{current.album.year} · {current.album.title}</p><h2>{current.track.title}</h2><span>{current.album.artist}</span>{audioError && <small>试听暂时无法播放，请前往音乐平台收听。</small>}</div><div className="player-actions"><button className="player-control" onClick={togglePlay} type="button" aria-label={playing ? '暂停' : '播放'}><PlayIcon playing={playing}/></button><button className="next-control" onClick={randomPlay} type="button" aria-label="下一首随机歌曲">→</button><a href={current.track.url || current.album.url} target="_blank" rel="noreferrer" className="platform-link">在 Apple Music 中打开 ↗</a></div></> : <><div className="empty-vinyl"><div/></div><p className="empty-copy">还没有选中歌曲。<br/><span>点一张封面，或让命运随机挑选。</span></p><button className="empty-action" type="button" onClick={randomPlay}>开始听 <span>↗</span></button></>}
+        {current ? <><img src={current.anime.cover} alt={`${current.anime.title} 动漫封面`} className="mini-cover"/><div className="track-info"><p>{current.anime.year} · {current.anime.title}</p><h2>{current.track.title}</h2><div className="track-meta"><span>{current.track.kind} · {current.track.artist}</span><div className="theme-tabs">{(['OP','ED'] as const).filter(kind => current.anime.tracks.some(track => track.kind === kind)).map(kind => <button type="button" key={kind} className={current.track.kind === kind ? 'active' : ''} onClick={() => playAnime(current.anime, selectedIndex ?? 0, kind)} aria-label={`播放${kind}`}>{kind}</button>)}</div></div>{audioError && <small>试听暂时无法播放，请前往音乐平台收听。</small>}</div><div className="player-actions"><button className="player-control" onClick={togglePlay} type="button" aria-label={playing ? '暂停' : '播放'}><PlayIcon playing={playing}/></button><button className="next-control" onClick={randomPlay} type="button" aria-label="下一首随机歌曲">→</button><a href={current.track.url} target="_blank" rel="noreferrer" className="platform-link">在 Apple Music 中打开 ↗</a></div></> : <><div className="empty-vinyl"><div/></div><p className="empty-copy">熟悉的旋律，等你按下播放。<br/><span>点一张动漫封面，或随机听一首 OP / ED。</span></p><button className="empty-action" type="button" onClick={randomPlay}>开始听 <span>↗</span></button></>}
       </section>
-      <footer className="legal-line">精选 80 年代至 2020 年代华语专辑 · Apple Music 提供 30 秒试听 · 封面与音乐版权归各权利人所有</footer>
+      <footer className="legal-line">精选 1980 年代至 2010 年代动漫 OP / ED · 海报资料来自 Kitsu，试听来自 Apple Music · 图片与音乐版权归各权利人所有</footer>
     </main>}
     <audio ref={audio} onEnded={() => setPlaying(false)} onError={() => { setPlaying(false); setAudioError(true); }}/>
   </div>;
