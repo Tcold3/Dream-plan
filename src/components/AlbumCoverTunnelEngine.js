@@ -368,7 +368,10 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     }
   });
   const CAM0 = FOCUS;
-  let travel = 0, vel = 0, idle = 0, goTo = null, heroAmt = 0, hovered = null, heroC = covers.find((c) => c.tex === 0);
+  const INTRO_DISTANCE = 12, INTRO_DURATION = 1.5;
+  let travel = options.introStage === "loading" ? -INTRO_DISTANCE : 0;
+  let introElapsed = 0, nextBatchTravel = 2 * D;
+  let vel = 0, idle = 0, goTo = null, heroAmt = 0, hovered = null, heroC = covers.find((c) => c.tex === 0);
   let particleImpulse = 0, particleDirection = 1;
   const smooth = (a, b, x) => {
     const t = Math.min(Math.max((x - a) / (b - a), 0), 1);
@@ -479,35 +482,60 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     sparkleGeometry.attributes.position.needsUpdate = true;
   }
   function update(dt, t) {
-    const input = wheel * 4e-3 + dragV * 0.02;
+    const introHolding = options.introStage === "loading";
+    const introMoving = options.introStage === "travel" && introElapsed < INTRO_DURATION;
+    const input = introHolding || introMoving ? 0 : wheel * 4e-3 + dragV * 0.02;
     wheel = 0;
     dragV = 0;
-    updateParticles(input, dt);
-    if (Math.abs(input) > 1e-4) {
-      vel += input;
+    updateParticles(introMoving ? 0.05 : input, dt);
+    if (introHolding) {
+      travel = -INTRO_DISTANCE;
+      vel = 0;
       idle = 0;
       goTo = null;
-    } else idle += dt;
-    vel *= Math.pow(0.06, dt);
-    travel += vel * (instant() ? 0.12 : dt) * 6;
-    if (goTo !== null) {
-      travel = damp(travel, goTo, 2.4, dt);
-      if (Math.abs(travel - goTo) < 0.02) goTo = null;
-    } else if (idle > 0.45 && Math.abs(vel) < 0.5) {
-      const fz = CAM0 - travel - FOCUS;
-      let best = null, bd = 1e9;
-      for (const L of layers) if (centerOf(L)) {
-        const d = L.z - fz;
-        if (Math.abs(d) < Math.abs(bd)) {
-          bd = d;
-          best = L;
-        }
-      }
-      if (best) travel = damp(travel, travel - bd, 3, dt);
-    }
-    if (options.autoTravel && !instant() && idle > 5 && !hovered && goTo === null) {
-      vel += 5.6;
+    } else if (introMoving) {
+      introElapsed = Math.min(INTRO_DURATION, introElapsed + dt);
+      const progress = introElapsed / INTRO_DURATION;
+      const eased = progress * progress * (3 - 2 * progress);
+      travel = -INTRO_DISTANCE * (1 - eased);
+      vel = 0;
       idle = 0;
+      goTo = null;
+    } else {
+      if (options.introStage === "ready" && introElapsed < INTRO_DURATION) {
+        travel = 0;
+        introElapsed = INTRO_DURATION;
+      }
+      if (Math.abs(input) > 1e-4) {
+        vel += input;
+        idle = 0;
+        goTo = null;
+      } else idle += dt;
+      vel *= Math.pow(0.06, dt);
+      travel += vel * (instant() ? 0.12 : dt) * 6;
+      if (goTo !== null) {
+        travel = damp(travel, goTo, 2.4, dt);
+        if (Math.abs(travel - goTo) < 0.02) goTo = null;
+      } else if (idle > 0.45 && Math.abs(vel) < 0.5) {
+        const fz = CAM0 - travel - FOCUS;
+        let best = null, bd = 1e9;
+        for (const L of layers) if (centerOf(L)) {
+          const d = L.z - fz;
+          if (Math.abs(d) < Math.abs(bd)) {
+            bd = d;
+            best = L;
+          }
+        }
+        if (best) travel = damp(travel, travel - bd, 3, dt);
+      }
+      if (options.autoTravel && !instant() && idle > 5 && !hovered && goTo === null) {
+        vel += 5.6;
+        idle = 0;
+      }
+      if (options.introStage === "ready" && travel >= nextBatchTravel && (input > 0 || vel > 0.05)) {
+        nextBatchTravel = travel + 2 * D;
+        options.onAdvance?.();
+      }
     }
     camera.position.z = CAM0 - travel;
     if (inside) look.copy(pointer);

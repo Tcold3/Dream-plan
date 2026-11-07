@@ -44,17 +44,18 @@ function ShuffleIcon() {
 }
 
 function LoadingMonogram({ progress }: { progress: number }) {
-  const shape = 'M30 210V32H65L120 130L175 32H210V210H175V94L132 171H108L65 94V210Z';
-  const fillHeight = 178 * Math.min(100, Math.max(0, progress)) / 100;
+  const shape = 'M6 213C20 185 26 65 39 29H75L120 128L165 29H201C214 65 220 185 234 213H185L172 108L135 181H105L68 108L55 213Z';
+  const fillHeight = 184 * Math.min(100, Math.max(0, progress)) / 100;
   return <svg className="loading-monogram" viewBox="0 0 240 240" role="progressbar" aria-label="封面加载进度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
     <defs><clipPath id="loading-m-shape"><path d={shape}/></clipPath><linearGradient id="loading-m-color" x1="0" y1="1" x2="1" y2="0"><stop stopColor="#8ed7ed"/><stop offset="1" stopColor="#6798e5"/></linearGradient></defs>
-    <rect x="0" y={210 - fillHeight} width="240" height={fillHeight} fill="url(#loading-m-color)" clipPath="url(#loading-m-shape)"/>
+    <rect x="0" y={213 - fillHeight} width="240" height={fillHeight} fill="url(#loading-m-color)" clipPath="url(#loading-m-shape)"/>
     <path d={shape} fill="none" stroke="#a8c7eb" strokeWidth="3" strokeLinejoin="round"/>
   </svg>;
 }
 
 function App() {
   const [entered, setEntered] = useState(false);
+  const [phase, setPhase] = useState<'loading' | 'travel' | 'ready'>('loading');
   const [era, setEra] = useState<Era>('all');
   const [batch, setBatch] = useState<Anime[]>(() => makeBatch('all'));
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -63,9 +64,11 @@ function App() {
   const [audioError, setAudioError] = useState(false);
   const [height, setHeight] = useState(560);
   const [loading, setLoading] = useState(true);
+  const [batchLoading, setBatchLoading] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
   const [loadError, setLoadError] = useState('');
   const loadGeneration = useRef(0);
+  const batchLoadingRef = useRef(false);
   const audio = useRef<HTMLAudioElement>(null);
   const tunnelHost = useRef<HTMLElement>(null);
 
@@ -83,7 +86,7 @@ function App() {
     const choices = kind ? anime.tracks.filter(track => track.kind === kind) : anime.tracks;
     const track = choices[Math.floor(Math.random() * choices.length)];
     if (!track || !audio.current) return;
-    setSelectedIndex(index);
+    setSelectedIndex(index >= 0 ? index : null);
     setCurrent({ anime, track });
     setAudioError(false);
     audio.current.src = track.preview;
@@ -97,8 +100,8 @@ function App() {
 
   const switchEra = (next: Era) => {
     loadGeneration.current++;
-    setLoading(true);
-    setLoadProgress(0);
+    batchLoadingRef.current = true;
+    setBatchLoading(true);
     setLoadError('');
     audio.current?.pause();
     setPlaying(false);
@@ -110,7 +113,9 @@ function App() {
 
   const changeBatch = () => {
     loadGeneration.current++;
-    setLoading(true);
+    batchLoadingRef.current = true;
+    setBatchLoading(true);
+    setLoading(phase === 'loading');
     setLoadProgress(0);
     setLoadError('');
     audio.current?.pause();
@@ -136,6 +141,9 @@ function App() {
 
   const leave = () => {
     loadGeneration.current++;
+    batchLoadingRef.current = false;
+    setBatchLoading(false);
+    setPhase('loading');
     setLoading(true);
     setLoadProgress(0);
     setLoadError('');
@@ -144,6 +152,15 @@ function App() {
     setEntered(false);
   };
 
+  const onAdvance = useCallback(() => {
+    if (phase !== 'ready' || batchLoadingRef.current) return;
+    loadGeneration.current++;
+    batchLoadingRef.current = true;
+    setBatchLoading(true);
+    setSelectedIndex(null);
+    setBatch(previous => makeBatch(era, previous.map(anime => anime.id)));
+  }, [era, phase]);
+
   const tunnelImages = useMemo(() => batch.map(anime => ({ src: anime.cover, alt: `${anime.title} — ${anime.year}` })), [batch]);
   const tunnelOptions = useMemo<AlbumCoverTunnelOptions>(() => {
     const generation = loadGeneration.current;
@@ -151,38 +168,53 @@ function App() {
       images: tunnelImages,
       active: selectedIndex ?? undefined,
       onSelect,
-      onProgress: percent => { if (generation === loadGeneration.current) setLoadProgress(percent); },
-      onReady: () => { if (generation === loadGeneration.current) { setLoadProgress(100); window.setTimeout(() => { if (generation === loadGeneration.current) setLoading(false); }, 260); } },
-      onError: message => { if (generation === loadGeneration.current) { setLoadError(message); setLoading(false); } },
+      onAdvance,
+      introStage: phase,
+      onProgress: percent => { if (generation === loadGeneration.current && phase === 'loading') setLoadProgress(percent); },
+      onReady: () => {
+        if (generation !== loadGeneration.current) return;
+        batchLoadingRef.current = false;
+        setBatchLoading(false);
+        if (phase !== 'loading') return;
+        setLoadProgress(100);
+        window.setTimeout(() => {
+          if (generation !== loadGeneration.current) return;
+          setLoading(false);
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setPhase('ready'); return; }
+          setPhase('travel');
+          window.setTimeout(() => { if (generation === loadGeneration.current) setPhase('ready'); }, 1750);
+        }, 300);
+      },
+      onError: message => { if (generation === loadGeneration.current) { batchLoadingRef.current = false; setBatchLoading(false); setLoadError(message); setLoading(false); } },
       height,
       theme: 'light',
-      autoTravel: true,
+      autoTravel: false,
     };
-  }, [tunnelImages, selectedIndex, onSelect, height, entered]);
+  }, [tunnelImages, selectedIndex, onSelect, onAdvance, phase, height, entered]);
 
   return <div className="page-shell">
     {!entered ? <main className="welcome-screen" aria-label="欢迎回到梦开始的地方">
       <TactileWelcomeButton onClick={() => setEntered(true)} />
-    </main> : <main className="experience" aria-label="动漫主题曲隧道">
+    </main> : <main className={`experience${phase !== 'ready' ? ' entering' : ''}`} aria-label="动漫主题曲隧道">
       <header className="site-header">
         <button className="brand" type="button" onClick={leave} aria-label="返回欢迎页"><span className="brand-mark"><i/><i/><i/></span><span>梦开始的地方<span className="brand-en">ANIME THEME RADIO</span></span></button>
         <div className="header-right"><span className="on-air"><span/> 80、90 后的动漫记忆</span></div>
       </header>
       <div className="toolbar">
         <div className="era-switch" role="group" aria-label="选择年代">{eras.map(item => <button key={item.id} className={era === item.id ? 'era active' : 'era'} type="button" onClick={() => switchEra(item.id)} aria-pressed={era === item.id}>{item.label}</button>)}</div>
-        <div className="toolbar-actions"><button className="refresh" type="button" onClick={changeBatch}><span>↻</span> 换一批</button><button className="random-button" onClick={randomPlay} type="button"><ShuffleIcon/> 随机听一首</button></div>
+        <div className="toolbar-actions"><button className="random-button" onClick={randomPlay} type="button"><ShuffleIcon/> 随机听一首</button></div>
       </div>
-      <section className="tunnel-wrap" aria-label="探索动漫封面" aria-busy={loading} ref={tunnelHost}>
+      <section className="tunnel-wrap" aria-label="探索动漫封面" aria-busy={loading || batchLoading} ref={tunnelHost}>
         {batch.length > 0 && <Suspense fallback={null}><AlbumCoverTunnel options={tunnelOptions} className="tunnel" /></Suspense>}
         {(loading || loadError) && <div className="tunnel-loading" role="status" aria-live="polite">
           {loadError ? <div className="loading-error"><LoadingMonogram progress={0}/><p>{loadError}</p><button type="button" onClick={changeBatch}>换一批重试</button></div> : <LoadingMonogram progress={loadProgress}/>}
         </div>}
         <div className="tunnel-topline"><span>轻触动漫封面，重听那段旋律</span><span>{era === 'all' ? '跨越年代' : `${Number(era) >= 70 ? '19' : '20'}${era}S`}</span></div>
-        <div className="tunnel-bottomline"><span>滚动 / 拖动穿梭 <b>↓</b></span><span>当前 {batch.length} 部动画</span></div>
+        <div className="tunnel-bottomline"><span>向下滚动 · 自动遇见下一批 <b>↓</b></span><span>当前 {batch.length} 部动画</span></div>
       </section>
       <section className="now-playing" aria-label="正在播放">
         <div className="now-label"><span className="pulse-bars"><i/><i/><i/><i/></span><span>NOW PLAYING<br/><strong>此刻的声音</strong></span></div>
-        {current ? <><img src={current.anime.cover} alt={`${current.anime.title} 动漫封面`} className="mini-cover"/><div className="track-info"><p>{current.anime.year} · {current.anime.title}</p><h2>{current.track.title}</h2><div className="track-meta"><span>{current.track.kind} · {current.track.artist}</span><div className="theme-tabs">{(['OP','ED'] as const).filter(kind => current.anime.tracks.some(track => track.kind === kind)).map(kind => <button type="button" key={kind} className={current.track.kind === kind ? 'active' : ''} onClick={() => playAnime(current.anime, selectedIndex ?? 0, kind)} aria-label={`播放${kind}`}>{kind}</button>)}</div></div>{audioError && <small>试听暂时无法播放，请前往音乐平台收听。</small>}</div><div className="player-actions"><button className="player-control" onClick={togglePlay} type="button" aria-label={playing ? '暂停' : '播放'}><PlayIcon playing={playing}/></button><button className="next-control" onClick={randomPlay} type="button" aria-label="下一首随机歌曲">→</button><a href={current.track.url} target="_blank" rel="noreferrer" className="platform-link">在 Apple Music 中打开 ↗</a></div></> : <><div className="empty-vinyl"><div/></div><p className="empty-copy">熟悉的旋律，等你按下播放。<br/><span>点一张动漫封面，或随机听一首 OP / ED。</span></p><button className="empty-action" type="button" onClick={randomPlay}>开始听 <span>↗</span></button></>}
+        {current ? <><img src={current.anime.cover} alt={`${current.anime.title} 动漫封面`} className="mini-cover"/><div className="track-info"><p>{current.anime.year} · {current.anime.title}</p><h2>{current.track.title}</h2><div className="track-meta"><span>{current.track.kind} · {current.track.artist}</span><div className="theme-tabs">{(['OP','ED'] as const).filter(kind => current.anime.tracks.some(track => track.kind === kind)).map(kind => <button type="button" key={kind} className={current.track.kind === kind ? 'active' : ''} onClick={() => playAnime(current.anime, batch.findIndex(anime => anime.id === current.anime.id), kind)} aria-label={`播放${kind}`}>{kind}</button>)}</div></div>{audioError && <small>试听暂时无法播放，请前往音乐平台收听。</small>}</div><div className="player-actions"><button className="player-control" onClick={togglePlay} type="button" aria-label={playing ? '暂停' : '播放'}><PlayIcon playing={playing}/></button><button className="next-control" onClick={randomPlay} type="button" aria-label="下一首随机歌曲">→</button><a href={current.track.url} target="_blank" rel="noreferrer" className="platform-link">在 Apple Music 中打开 ↗</a></div></> : <><div className="empty-vinyl"><div/></div><p className="empty-copy">熟悉的旋律，等你按下播放。<br/><span>点一张动漫封面，或随机听一首 OP / ED。</span></p><button className="empty-action" type="button" onClick={randomPlay}>开始听 <span>↗</span></button></>}
       </section>
       <footer className="legal-line">精选 1980 年代至 2010 年代动漫 OP / ED · 海报资料来自 Kitsu，试听来自 Apple Music · 图片与音乐版权归各权利人所有</footer>
     </main>}
