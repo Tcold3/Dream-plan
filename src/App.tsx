@@ -5,12 +5,11 @@ import catalog from './data/albums.json';
 
 type Track = { title: string; preview: string; url: string };
 type Album = { id: string; era: string; title: string; artist: string; year: number; cover: string; url: string; tracks: Track[] };
-type Era = 'all' | '70' | '80' | '90' | '00' | '10' | '20';
+type Era = 'all' | '80' | '90' | '00' | '10' | '20';
 
 const albums = catalog as Album[];
 const eras: { id: Era; label: string }[] = [
   { id: 'all', label: '全部年代' },
-  { id: '70', label: '70年代' },
   { id: '80', label: '80年代' },
   { id: '90', label: '90年代' },
   { id: '00', label: '00年代' },
@@ -29,9 +28,9 @@ function shuffle<T>(items: T[]) {
 
 function makeBatch(era: Era, previous: string[] = []): Album[] {
   const pool = era === 'all' ? albums : albums.filter(album => album.era === era);
-  if (era !== 'all') return shuffle(pool);
-  const picked = shuffle(pool.filter(album => !previous.includes(album.id))).slice(0, 12);
-  if (picked.length < 12) picked.push(...shuffle(pool.filter(album => !picked.includes(album))).slice(0, 12 - picked.length));
+  const size = Math.min(era === 'all' ? 12 : 5, pool.length);
+  const picked = shuffle(pool.filter(album => !previous.includes(album.id))).slice(0, size);
+  if (picked.length < size) picked.push(...shuffle(pool.filter(album => !picked.includes(album))).slice(0, size - picked.length));
   return picked;
 }
 
@@ -76,12 +75,18 @@ function App() {
   }, [batch, playAlbum]);
 
   const switchEra = (next: Era) => {
+    audio.current?.pause();
+    setPlaying(false);
+    setCurrent(null);
     setEra(next);
     setBatch(makeBatch(next));
     setSelectedIndex(null);
   };
 
   const changeBatch = () => {
+    audio.current?.pause();
+    setPlaying(false);
+    setCurrent(null);
     setBatch(makeBatch(era, batch.map(album => album.id)));
     setSelectedIndex(null);
   };
@@ -117,8 +122,8 @@ function App() {
 
     <main id="top">
       <section className="intro" aria-labelledby="page-title">
-        <div className="intro-main"><p className="serial">NO. 001 / RANDOM LISTENING EXPERIENCE</p><h1 id="page-title">把耳朵交给<br/><em>另一个年代。</em></h1></div>
-        <div className="intro-side"><span className="starburst">✳</span><p>从一张封面出发，<br/>偶遇一首刚好属于此刻的歌。</p><span className="intro-note">向下滑动隧道，或点一张封面开始听。</span></div>
+        <div className="intro-main"><p className="serial">CHINESE MUSIC / 1980S — 2020S</p><h1 id="page-title">把耳朵交给<br/><em>另一个年代。</em></h1></div>
+        <div className="intro-side"><span className="starburst">✳</span><p>从一张华语唱片出发，<br/>偶遇一首刚好属于此刻的歌。</p><span className="intro-note">向下滑动隧道，或点一张封面开始听。</span></div>
       </section>
 
       <section className="explore" aria-label="探索专辑">
@@ -137,7 +142,7 @@ function App() {
       </section>
     </main>
 
-    <footer id="about"><span>时光声廊 © 2026</span><p>精选跨年代热门专辑 · Apple Music 提供 30 秒试听片段。封面与音乐版权归各权利人所有。</p><a href="#top">回到顶部 ↑</a></footer>
+    <footer id="about"><span>时光声廊 © 2026</span><p>精选 80 年代至 2020 年代华语专辑（内地、香港、台湾）· Apple Music 提供 30 秒试听片段。封面与音乐版权归各权利人所有。</p><a href="#top">回到顶部 ↑</a></footer>
     <audio ref={audio} onEnded={() => setPlaying(false)} onError={() => { setPlaying(false); setAudioError(true); }}/>
   </div>;
 }
