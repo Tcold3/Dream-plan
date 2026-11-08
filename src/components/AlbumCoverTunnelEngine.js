@@ -118,12 +118,12 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     cv.height = TEX_H;
     return cv.getContext("2d", { willReadFrequently: true });
   }
-  async function writeCoverLayer(g, data, index, src) {
+  async function writeCoverLayer(g, data, index, src, isCurrent = () => true) {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = src;
     await img.decode();
-    if (dead) throw new Error("destroyed");
+    if (dead || !isCurrent()) throw new Error("cancelled");
     const frame = Math.round(TEX_W / 48);
     const innerWidth = TEX_W - frame * 2, innerHeight = TEX_H - frame * 2;
     g.fillStyle = "#e5e8eb";
@@ -149,9 +149,9 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
       if (mobile && i % 2 === 1) await new Promise(resolve => win.setTimeout(resolve, 0));
     }
     const t = new THREE.DataArrayTexture(data, TEX_W, TEX_H, images.length);
-    t.minFilter = THREE.LinearMipmapLinearFilter;
+    t.minFilter = mobile ? THREE.LinearFilter : THREE.LinearMipmapLinearFilter;
     t.magFilter = THREE.LinearFilter;
-    t.generateMipmaps = true;
+    t.generateMipmaps = !mobile;
     t.flipY = false;
     t.anisotropy = mobile ? 1 : 4;
     t.needsUpdate = true;
@@ -752,18 +752,34 @@ function createAlbumCoverTunnel(target, initial = {}, CSS, MARKUP) {
     const version = ++loadVersion;
     const onProgress = options.onProgress, onReady = options.onReady, onError = options.onError;
     onProgress?.(0);
-    return buildArray(images, (progress) => {
+    const previous = mat.uniforms.map.value;
+    const reuse = mobile && previous?.image?.depth === images.length;
+    const load = reuse ? (async () => {
+      const g = createLayerCanvas();
+      for (let i = 0; i < images.length; i++) {
+        await writeCoverLayer(g, previous.image.data, i, images[i].src,
+          () => version === loadVersion && mat.uniforms.map.value === previous);
+        onProgress?.(Math.round((i + 1) / images.length * 90));
+        if (i % 2 === 1) await new Promise(resolve => win.setTimeout(resolve, 0));
+      }
+      return previous;
+    })() : buildArray(images, (progress) => {
       if (dead || version !== loadVersion) throw new Error("cancelled");
       onProgress?.(progress);
-    }).then((texture) => {
+    });
+    return load.then((texture) => {
       if (dead || version !== loadVersion) {
-        texture.dispose();
+        if (texture !== mat.uniforms.map.value) texture.dispose();
         return;
       }
-      const previous = mat.uniforms.map.value;
       imageList = images;
-      mat.uniforms.map.value = texture;
-      previous?.dispose();
+      if (reuse) {
+        for (let i = 0; i < images.length; i++) texture.addLayerUpdate(i);
+        texture.needsUpdate = true;
+      } else {
+        mat.uniforms.map.value = texture;
+        previous?.dispose();
+      }
       covers.forEach((c) => {
         c.tex = c.gridX === 0 && c.gridY === 0 && c.L.k === 0 ? 0 : keyAt(c.gridX, c.gridY, c.L.k);
       });
